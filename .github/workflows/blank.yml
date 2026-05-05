@@ -28,3 +28,11 @@ jobs:
       # 3. Installation des dépendances
       - name: Installation des dépendances
         run: npm install
+
+       # --- ÉTAPE 1 : SNYK (Sécurité Bibliothèques / SCA) ---
+      - name: Scan Snyk
+        uses: snyk/actions/node@master
+        with:
+          args: --file=package.json --severity-threshold=low
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_API }}

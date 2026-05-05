@@ -44,3 +44,18 @@ jobs:
           key: javascript
           dsn: ${{ secrets.DEEPSOURCE_API }}
         continue-on-error: true # Pour que GitGuardian puisse quand même passer après
+
+
+      # --- ÉTAPE 3 : GITGUARDIAN (Détection de Secrets) ---
+      - name: Scan GitGuardian
+        uses: GitGuardian/ggshield-action@master
+        env:
+          GITGUARDIAN_API_KEY: ${{ secrets.GITGUARDIAN_API }}
+
+  validation:
+      needs: security
+      runs-on: ubuntu-latest
+      steps:
+        - name: Rapport Final
+          run: echo "Analyse multi-outils (Snyk, DeepSource, GitGuardian) terminée avec succès !"
+          

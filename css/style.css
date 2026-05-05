@@ -1,19 +1,158 @@
-/* AgriData — feuille de styles (squelette initial) */
+/* AgriData - feuille de styles principale */
 
-:root {
-  --color-primary: #2d5a3d;
-  --color-bg: #f8f9f5;
-  --color-text: #1f2d24;
+* {
+    box-sizing: border-box;
 }
 
 body {
-  font-family: "Segoe UI", Roboto, Arial, sans-serif;
-  background-color: var(--color-bg);
-  color: var(--color-text);
-  margin: 0;
-  padding: 2rem;
+    font-family: "Segoe UI", Roboto, Arial, sans-serif;
+    background-color: #f8f9f5;
+    color: #1f2d24;
+    margin: 0;
+    padding: 0;
+    line-height: 1.5;
 }
 
-h1 {
-  color: var(--color-primary);
+/* Header et navigation */
+header {
+    background-color: #2d5a3d;
+    color: white;
+    padding: 1rem 2rem;
+}
+
+header h1 {
+    margin: 0 0 0.5rem 0;
+    font-size: 1.6rem;
+}
+
+nav ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.2rem;
+}
+
+nav a {
+    color: #f1efe2;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+nav a:hover {
+    color: #c9a227;
+}
+
+nav a.active {
+    color: #c9a227;
+    border-bottom: 2px solid #c9a227;
+}
+
+/* Contenu principal */
+main {
+    max-width: 1100px;
+    margin: 2rem auto;
+    padding: 0 1.5rem;
+}
+
+main h2 {
+    color: #2d5a3d;
+    margin-top: 0;
+}
+
+/* Cartes de stats */
+.stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.stat-card {
+    background-color: white;
+    border: 1px solid #e1e6dc;
+    border-radius: 8px;
+    padding: 1rem 1.2rem;
+}
+
+.stat-card .label {
+    color: #6b7a70;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+}
+
+.stat-card .value {
+    font-size: 1.8rem;
+    font-weight: bold;
+    color: #2d5a3d;
+}
+
+/* Tableaux */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: white;
+    border: 1px solid #e1e6dc;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+th, td {
+    padding: 0.7rem 1rem;
+    text-align: left;
+    border-bottom: 1px solid #e1e6dc;
+}
+
+th {
+    background-color: #f1f4ec;
+    color: #2d5a3d;
+    font-weight: 600;
+}
+
+tr:last-child td {
+    border-bottom: none;
+}
+
+/* Badges (états et niveaux) */
+.badge {
+    display: inline-block;
+    padding: 0.2rem 0.6rem;
+    border-radius: 12px;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+.badge-ok       { background: #dcfce7; color: #166534; }
+.badge-stress   { background: #fef3c7; color: #92400e; }
+.badge-risque   { background: #fed7aa; color: #9a3412; }
+.badge-maladie  { background: #fee2e2; color: #991b1b; }
+
+.niveau-1 { background: #fef3c7; color: #92400e; }
+.niveau-2 { background: #fee2e2; color: #991b1b; }
+
+/* Footer */
+footer {
+    text-align: center;
+    padding: 1.5rem;
+    color: #6b7a70;
+    font-size: 0.85rem;
+    border-top: 1px solid #e1e6dc;
+    margin-top: 3rem;
+}
+
+/* Responsive simple */
+@media (max-width: 600px) {
+    main {
+        padding: 0 1rem;
+    }
+    header {
+        padding: 1rem;
+    }
+    table {
+        font-size: 0.9rem;
+    }
+    th, td {
+        padding: 0.5rem;
+    }
 }

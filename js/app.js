@@ -1,6 +1,6 @@
-// AgriSuivi — point d'entrée JS (squelette initial)
+// AgriData — point d'entrée JS (squelette initial)
 'use strict';
 
 document.addEventListener('DOMContentLoaded', () => {
-  console.log('AgriSuivi initialisé.');
+  console.log('AgriData initialisé.');
 });

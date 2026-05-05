@@ -1,4 +1,4 @@
-# AgriSuivi
+# AgriData
 
 Application web de suivi agricole — projet Bachelor 2 (Sup de Vinci),
 commandité par la Chambre d'Agriculture.

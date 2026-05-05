@@ -1,0 +1,19 @@
+/* AgriSuivi — feuille de styles (squelette initial) */
+
+:root {
+  --color-primary: #2d5a3d;
+  --color-bg: #f8f9f5;
+  --color-text: #1f2d24;
+}
+
+body {
+  font-family: "Segoe UI", Roboto, Arial, sans-serif;
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  margin: 0;
+  padding: 2rem;
+}
+
+h1 {
+  color: var(--color-primary);
+}

@@ -29,10 +29,18 @@ jobs:
       - name: Installation des dépendances
         run: npm install
 
-       # --- ÉTAPE 1 : SNYK (Sécurité Bibliothèques / SCA) ---
+      # --- ÉTAPE 1 : SNYK (Sécurité Bibliothèques / SCA) ---
       - name: Scan Snyk
         uses: snyk/actions/node@master
         with:
           args: --file=package.json --severity-threshold=low
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_API }}
+
+      # --- ÉTAPE 2 : DEEPSOURCE (Analyse Qualité & Sécurité) ---
+      - name: DeepSource Analysis
+        uses: deepsourcelabs/test-coverage-action@master
+        with:
+          key: javascript
+          dsn: ${{ secrets.DEEPSOURCE_API }}
+        continue-on-error: true # Pour que GitGuardian puisse quand même passer après

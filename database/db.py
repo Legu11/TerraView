@@ -3,9 +3,20 @@ from __future__ import annotations
 
 import os
 from contextlib import contextmanager
+from pathlib import Path
 
 import mysql.connector
 from mysql.connector import Error
+
+# Charge automatiquement les variables depuis .env (à la racine du projet)
+# si python-dotenv est installé. Sinon, on s'appuie sur les variables système.
+try:
+    from dotenv import load_dotenv
+    env_path = Path(__file__).resolve().parent.parent / ".env"
+    if env_path.exists():
+        load_dotenv(env_path)
+except ImportError:
+    pass
 
 
 def db_config() -> dict:

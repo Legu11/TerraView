@@ -62,7 +62,7 @@ function getQueryParam(name) {
 
 // ===== Initialisation =======================================================
 
-document.addEventListener('DOMContentLoaded', function () {
+document.addEventListener('DOMContentLoaded', async function () {
 
     // Met en évidence le lien actif dans la navbar
     const currentPage = window.location.pathname.split('/').pop() || 'index.html';
@@ -71,6 +71,11 @@ document.addEventListener('DOMContentLoaded', function () {
             link.classList.add('active');
         }
     });
+
+    // Charge les données depuis l'API REST (ou utilise le mock selon api.js)
+    if (typeof loadData === 'function') {
+        await loadData();
+    }
 
     // Délègue à la fonction qui correspond à la page courante
     if (document.getElementById('stats'))             renderDashboard();

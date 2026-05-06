@@ -69,6 +69,25 @@ def alertes():
     """))
 
 
+@app.get("/api/cultures")
+def cultures():
+    return jsonify(fetch_all("""
+        SELECT c.id, c.type, c.date_semis, p.nom AS parcelle
+        FROM cultures c JOIN parcelles p ON p.id = c.parcelle_id
+        ORDER BY c.id
+    """))
+
+
+@app.get("/api/meteo")
+def meteo():
+    return jsonify(fetch_all("""
+        SELECT date, temperature, humidite, pluie_mm
+        FROM meteo
+        ORDER BY date DESC
+        LIMIT 30
+    """))
+
+
 if __name__ == "__main__":
     app.run(host=os.getenv("API_HOST", "127.0.0.1"),
             port=int(os.getenv("API_PORT", "5000")))

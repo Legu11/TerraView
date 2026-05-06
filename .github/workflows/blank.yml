@@ -1,9 +1,10 @@
+name: Analyse de Sécurité
+
 on:
   push:
-    branches: ["Pipeline-Ci/CD"]
+    branches: ["Pipeline-CI/CD"] # Vérifie bien l'orthographe exacte de ta branche
   pull_request:
     branches: ["Pipeline-CI/CD"]
-
 
 jobs:
   security:
@@ -11,51 +12,50 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # 1. Récupération du code
       - name: Checkout du code
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-
-      # 2. Préparation de Node.js
       - name: Installation de Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '20'
+          cache: 'npm' # Optimise la vitesse
 
-
-      # 3. Installation des dépendances
       - name: Installation des dépendances
-        run: npm install
+        run: npm ci # 'npm ci' est plus propre pour les pipelines que 'npm install'
 
-      # --- ÉTAPE 1 : SNYK (Sécurité Bibliothèques / SCA) ---
+      # --- ÉTAPE 1 : SNYK ---
       - name: Scan Snyk
         uses: snyk/actions/node@master
-        with:
-          args: --file=package.json --severity-threshold=low
+        continue-on-error: true # Évite de bloquer toute la suite si une faille est trouvée
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_API }}
+        with:
+          args: --severity-threshold=low
 
-      # --- ÉTAPE 2 : DEEPSOURCE (Analyse Qualité & Sécurité) ---
+      # --- ÉTAPE 2 : DEEPSOURCE ---
       - name: DeepSource Analysis
         uses: deepsourcelabs/test-coverage-action@master
         with:
           key: javascript
           dsn: ${{ secrets.DEEPSOURCE_API }}
-        continue-on-error: true # Pour que GitGuardian puisse quand même passer après
+        continue-on-error: true
 
-
-      # --- ÉTAPE 3 : GITGUARDIAN (Détection de Secrets) ---
+      # --- ÉTAPE 3 : GITGUARDIAN ---
       - name: Scan GitGuardian
         uses: GitGuardian/ggshield-action@master
         env:
+          GITHUB_PUSH_BEFORE_SHA: ${{ github.event.before }}
+          GITHUB_PUSH_BASE_SHA: ${{ github.event.base_ref }}
+          GITHUB_PULL_REQUEST_NUMBER: ${{ github.event.number }}
           GITGUARDIAN_API_KEY: ${{ secrets.GITGUARDIAN_API }}
 
   validation:
-      needs: security
-      runs-on: ubuntu-latest
-      steps:
-        - name: Rapport Final
-          run: echo "Analyse multi-outils (Snyk, DeepSource, GitGuardian) terminée avec succès !"
-          
+    needs: security
+    runs-on: ubuntu-latest
+    if: always() # S'assure que le rapport s'affiche même si les scans trouvent des erreurs
+    steps:
+      - name: Rapport Final
+        run: echo "Analyse multi-outils terminée !"

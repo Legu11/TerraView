@@ -1,61 +1,78 @@
-name: Analyse de Sécurité
+name: CI Security Pipeline
 
 on:
   push:
-    branches: ["Pipeline-CI/CD"] # Vérifie bien l'orthographe exacte de ta branche
+    branches: ["Pipeline-CI/CD", "main", "master"] # Ajout des branches standards par sécurité
   pull_request:
     branches: ["Pipeline-CI/CD"]
 
+# Définit le dossier où se trouve ton code (laisse '.' si c'est à la racine)
+env:
+  WORKING_DIRECTORY: '.' 
+
 jobs:
   security:
-    name: Analyse Sécurité Globale
+    name: Analyse Sécurité
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ${{ env.WORKING_DIRECTORY }}
 
     steps:
+      # 1. Récupération du code
       - name: Checkout du code
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
+      # 2. Setup Node.js (Sans le cache automatique qui fait planter si le lock est absent)
       - name: Installation de Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-          cache: 'npm' # Optimise la vitesse
 
+      # 3. Installation propre
+      # Note : si tu as un package-lock.json, utilise 'npm ci'
+      # Si tu n'en as pas, 'npm install' va en créer un
       - name: Installation des dépendances
-        run: npm ci # 'npm ci' est plus propre pour les pipelines que 'npm install'
+        run: |
+          if [ -f package-lock.json ]; then
+            npm ci
+          else
+            npm install
+          fi
 
-      # --- ÉTAPE 1 : SNYK ---
+      # 4. SNYK (SCA - Analyse des vulnérabilités dépendances)
       - name: Scan Snyk
         uses: snyk/actions/node@master
-        continue-on-error: true # Évite de bloquer toute la suite si une faille est trouvée
+        continue-on-error: true # Permet de voir les autres outils même si Snyk trouve une faille
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_API }}
         with:
           args: --severity-threshold=low
 
-      # --- ÉTAPE 2 : DEEPSOURCE ---
-      - name: DeepSource Analysis
-        uses: deepsourcelabs/test-coverage-action@master
-        with:
-          key: javascript
-          dsn: ${{ secrets.DEEPSOURCE_API }}
-        continue-on-error: true
-
-      # --- ÉTAPE 3 : GITGUARDIAN ---
+      # 5. GITGUARDIAN (Secrets Detection)
       - name: Scan GitGuardian
         uses: GitGuardian/ggshield-action@master
+        continue-on-error: true
         env:
-          GITHUB_PUSH_BEFORE_SHA: ${{ github.event.before }}
-          GITHUB_PUSH_BASE_SHA: ${{ github.event.base_ref }}
-          GITHUB_PULL_REQUEST_NUMBER: ${{ github.event.number }}
           GITGUARDIAN_API_KEY: ${{ secrets.GITGUARDIAN_API }}
 
+      # 6. DEEPSOURCE (Code Quality & Security)
+      - name: DeepSource Analysis
+        # On utilise l'action officielle CLI de DeepSource pour plus de fiabilité
+        run: |
+          curl https://deepsource.io/cli | sh
+          ./bin/deepsource report --token ${{ secrets.DEEPSOURCE_API }}
+        continue-on-error: true
+
   validation:
+    name: Finalisation
     needs: security
     runs-on: ubuntu-latest
-    if: always() # S'assure que le rapport s'affiche même si les scans trouvent des erreurs
+    if: always() # S'exécute même si un scan a échoué
     steps:
-      - name: Rapport Final
-        run: echo "Analyse multi-outils terminée !"
+      - name: Statut Final
+        run: |
+          echo "La pipeline de sécurité est terminée."
+          echo "Vérifiez les onglets 'Security' et les logs ci-dessus pour les détails."

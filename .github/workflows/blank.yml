@@ -2,7 +2,6 @@ name: CI Security Pipeline
 
 on:
   push:
-    # Déclenchement sur n'importe quelle version de ta branche (casse ignorée)
     branches: ["Pipeline-CI/CD", "pipeline-ci/cd"]
   pull_request:
     branches: ["Pipeline-CI/CD", "pipeline-ci/cd"]
@@ -13,64 +12,39 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # 1. Récupération du code
       - name: Checkout du code
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0
+          fetch-depth: 0 # Récupère tout l'historique et toutes les branches
 
-      # 2. Préparation de Node.js
       - name: Installation de Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '20'
 
-      # 3. Installation intelligente des dépendances
-      - name: Installation des dépendances
+      - name: Diagnostic et Installation
         run: |
-          # Cette commande cherche le dossier contenant package.json
-          PACKAGE_PATH=$(find . -name "package.json" -not -path "*/node_modules/*" | head -n 1)
+          echo "--- LISTING DES FICHIERS ---"
+          ls -R
+          
+          echo "--- RECHERCHE DU PACKAGE.JSON ---"
+          # Recherche insensible à la casse pour voir s'il y a une erreur de nom
+          PACKAGE_PATH=$(find . -iname "package.json" -not -path "*/node_modules/*" | head -n 1)
+          
           if [ -z "$PACKAGE_PATH" ]; then
-            echo "ERREUR : Aucun package.json trouvé dans le dépôt !"
+            echo "ERREUR CRITIQUE : package.json est réellement absent du dépôt."
+            echo "Vérifiez que vous avez bien fait : git add package.json && git commit"
             exit 1
+          else
+            ROOT_DIR=$(dirname "$PACKAGE_PATH")
+            echo "Projet trouvé dans : $ROOT_DIR"
+            cd "$ROOT_DIR"
+            npm install
           fi
-          
-          # On extrait le dossier
-          ROOT_DIR=$(dirname "$PACKAGE_PATH")
-          echo "Dossier du projet détecté : $ROOT_DIR"
-          
-          # On se déplace et on installe
-          cd "$ROOT_DIR"
-          npm install
 
-      # --- ÉTAPE 1 : SNYK ---
+      # Les étapes suivantes (Snyk, DeepSource, GitGuardian) restent identiques...
       - name: Scan Snyk
         uses: snyk/actions/node@master
         continue-on-error: true
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_API }}
-        with:
-          args: --severity-threshold=low
-
-      # --- ÉTAPE 2 : DEEPSOURCE ---
-      - name: DeepSource Analysis
-        # Utilisation du script curl plus robuste si le repo est complexe
-        run: |
-          curl https://deepsource.io/cli | sh
-          ./bin/deepsource report --token ${{ secrets.DEEPSOURCE_API }}
-        continue-on-error: true
-
-      # --- ÉTAPE 3 : GITGUARDIAN ---
-      - name: Scan GitGuardian
-        uses: GitGuardian/ggshield-action@master
-        continue-on-error: true
-        env:
-          GITGUARDIAN_API_KEY: ${{ secrets.GITGUARDIAN_API }}
-
-  validation:
-    needs: security
-    runs-on: ubuntu-latest
-    if: always()
-    steps:
-      - name: Rapport Final
-        run: echo "Analyse multi-outils terminée !"

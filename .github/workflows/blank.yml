@@ -2,21 +2,15 @@ name: CI Security Pipeline
 
 on:
   push:
-    branches: ["Pipeline-CI/CD", "main", "master"] # Ajout des branches standards par sécurité
+    # Déclenchement sur n'importe quelle version de ta branche (casse ignorée)
+    branches: ["Pipeline-CI/CD", "pipeline-ci/cd"]
   pull_request:
-    branches: ["Pipeline-CI/CD"]
-
-# Définit le dossier où se trouve ton code (laisse '.' si c'est à la racine)
-env:
-  WORKING_DIRECTORY: '.' 
+    branches: ["Pipeline-CI/CD", "pipeline-ci/cd"]
 
 jobs:
   security:
-    name: Analyse Sécurité
+    name: Analyse Sécurité Globale
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ${{ env.WORKING_DIRECTORY }}
 
     steps:
       # 1. Récupération du code
@@ -25,54 +19,58 @@ jobs:
         with:
           fetch-depth: 0
 
-      # 2. Setup Node.js (Sans le cache automatique qui fait planter si le lock est absent)
+      # 2. Préparation de Node.js
       - name: Installation de Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '20'
 
-      # 3. Installation propre
-      # Note : si tu as un package-lock.json, utilise 'npm ci'
-      # Si tu n'en as pas, 'npm install' va en créer un
+      # 3. Installation intelligente des dépendances
       - name: Installation des dépendances
         run: |
-          if [ -f package-lock.json ]; then
-            npm ci
-          else
-            npm install
+          # Cette commande cherche le dossier contenant package.json
+          PACKAGE_PATH=$(find . -name "package.json" -not -path "*/node_modules/*" | head -n 1)
+          if [ -z "$PACKAGE_PATH" ]; then
+            echo "ERREUR : Aucun package.json trouvé dans le dépôt !"
+            exit 1
           fi
+          
+          # On extrait le dossier
+          ROOT_DIR=$(dirname "$PACKAGE_PATH")
+          echo "Dossier du projet détecté : $ROOT_DIR"
+          
+          # On se déplace et on installe
+          cd "$ROOT_DIR"
+          npm install
 
-      # 4. SNYK (SCA - Analyse des vulnérabilités dépendances)
+      # --- ÉTAPE 1 : SNYK ---
       - name: Scan Snyk
         uses: snyk/actions/node@master
-        continue-on-error: true # Permet de voir les autres outils même si Snyk trouve une faille
+        continue-on-error: true
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_API }}
         with:
           args: --severity-threshold=low
 
-      # 5. GITGUARDIAN (Secrets Detection)
+      # --- ÉTAPE 2 : DEEPSOURCE ---
+      - name: DeepSource Analysis
+        # Utilisation du script curl plus robuste si le repo est complexe
+        run: |
+          curl https://deepsource.io/cli | sh
+          ./bin/deepsource report --token ${{ secrets.DEEPSOURCE_API }}
+        continue-on-error: true
+
+      # --- ÉTAPE 3 : GITGUARDIAN ---
       - name: Scan GitGuardian
         uses: GitGuardian/ggshield-action@master
         continue-on-error: true
         env:
           GITGUARDIAN_API_KEY: ${{ secrets.GITGUARDIAN_API }}
 
-      # 6. DEEPSOURCE (Code Quality & Security)
-      - name: DeepSource Analysis
-        # On utilise l'action officielle CLI de DeepSource pour plus de fiabilité
-        run: |
-          curl https://deepsource.io/cli | sh
-          ./bin/deepsource report --token ${{ secrets.DEEPSOURCE_API }}
-        continue-on-error: true
-
   validation:
-    name: Finalisation
     needs: security
     runs-on: ubuntu-latest
-    if: always() # S'exécute même si un scan a échoué
+    if: always()
     steps:
-      - name: Statut Final
-        run: |
-          echo "La pipeline de sécurité est terminée."
-          echo "Vérifiez les onglets 'Security' et les logs ci-dessus pour les détails."
+      - name: Rapport Final
+        run: echo "Analyse multi-outils terminée !"

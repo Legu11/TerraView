@@ -2,9 +2,9 @@ name: CI Security Pipeline
 
 on:
   push:
-    branches: ["Pipeline-CI/CD", "pipeline-ci/cd"]
+    branches: ["**"]
   pull_request:
-    branches: ["Pipeline-CI/CD", "pipeline-ci/cd"]
+    branches: ["**"]
 
 jobs:
   security:

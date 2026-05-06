@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="AgriData - système d'alertes par parcelle avec niveau de gravité et filtres.">
+    <title>AgriData - Alertes</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+    <nav class="navbar navbar-expand-lg navbar-agri" aria-label="Navigation principale">
+        <div class="container">
+            <a class="navbar-brand" href="index.html"><span class="brand-mark">●</span> AgriData</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+                    data-bs-target="#mainNav" aria-controls="mainNav"
+                    aria-expanded="false" aria-label="Ouvrir le menu">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="mainNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item"><a class="nav-link" href="index.html">Accueil</a></li>
+                    <li class="nav-item"><a class="nav-link" href="parcelles.html">Parcelles</a></li>
+                    <li class="nav-item"><a class="nav-link" href="cultures.html">Cultures</a></li>
+                    <li class="nav-item"><a class="nav-link" href="observations.html">Observations</a></li>
+                    <li class="nav-item"><a class="nav-link" href="alertes.html">Alertes</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container py-4">
+        <header class="page-header">
+            <h1>Alertes</h1>
+            <p class="subtitle">Niveau 1 = vigilance (orange), Niveau 2 = critique (rouge).</p>
+        </header>
+
+        <section id="alertes-kpis" class="row g-3 mb-4"></section>
+
+        <section class="row g-2 mb-3" aria-label="Filtres">
+            <div class="col-12 col-md-4">
+                <label class="form-label small text-muted" for="filter-type">Type</label>
+                <select id="filter-type" class="form-select">
+                    <option value="">Tous</option>
+                    <option>Stress hydrique</option>
+                    <option>Risque maladie</option>
+                </select>
+            </div>
+            <div class="col-12 col-md-4">
+                <label class="form-label small text-muted" for="filter-niveau">Niveau</label>
+                <select id="filter-niveau" class="form-select">
+                    <option value="">Tous</option>
+                    <option value="1">Niveau 1 - vigilance</option>
+                    <option value="2">Niveau 2 - critique</option>
+                </select>
+            </div>
+        </section>
+
+        <div class="card card-agri">
+            <div class="table-responsive">
+                <table class="table table-agri mb-0">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Type</th>
+                            <th>Parcelle</th>
+                            <th>Niveau</th>
+                        </tr>
+                    </thead>
+                    <tbody id="alertes-body"></tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <footer class="agri-footer">
+        <p class="mb-0">Projet Bachelor 2 - Sup de Vinci - Chambre d'Agriculture</p>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="js/data.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>

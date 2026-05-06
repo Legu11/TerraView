@@ -1,0 +1,38 @@
+# Backend AgriData
+
+Base de données MySQL + API REST Flask pour le projet AgriData.
+
+## À quoi ça sert
+
+Ce backend centralise les données de l'exploitation (parcelles, cultures, observations terrain, alertes, météo) et les expose au frontend via une API REST. Il permet :
+
+- de stocker les relevés terrain dans une base relationnelle propre
+- d'analyser les données via des requêtes SQL prêtes à l'emploi (corrélations pluie/observations, alertes par zone, etc.)
+- de fournir au frontend (HTML/JS) des données consolidées en JSON, sans qu'il ait à connaître la structure de la base
+
+## Contenu du dossier `database/`
+
+| Fichier            | Rôle                                                     |
+|--------------------|----------------------------------------------------------|
+| `schema.sql`       | Crée la base `agriculture` et les 5 tables               |
+| `db.py`            | Helper de connexion MySQL                                |
+| `import_csv.py`    | Charge les CSV du dossier `data/` dans la base           |
+| `init_db.py`       | Applique `schema.sql` + lance l'import                   |
+| `queries.sql`      | 12 requêtes d'exploitation                               |
+| `run_queries.py`   | Exécute les requêtes et affiche les résultats            |
+| `api.py`           | API REST Flask                                           |
+| `requirements.txt` | Dépendances Python                                       |
+
+## Installation
+
+À la racine du projet :
+
+```powershell
+.\setup.ps1
+```
+
+Puis lancer l'API :
+
+```bash
+python database/api.py
+```

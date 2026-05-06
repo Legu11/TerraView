@@ -13,13 +13,15 @@ terrain et suivi des cultures.
 
 - `index.html` - tableau de bord avec stats et dernières observations
 - `parcelles.html` - liste des parcelles
-- `observations.html` - historique des relevés terrain
-- `alertes.html` - alertes par parcelle avec niveau de gravité
+- `cultures.html` - cultures associées aux parcelles
+- `observations.html` - historique des relevés terrain (avec filtres)
+- `alertes.html` - alertes par parcelle avec niveau de gravité (avec filtres + KPIs)
 
 ## Stack actuelle
 
 - HTML5 / CSS3
-- JavaScript vanilla (pas de framework)
+- Bootstrap 5 (CDN) pour le responsive et la navbar
+- JavaScript vanilla (pas de framework type React/Vue)
 - Données de test en dur dans `js/data.js`
 - Backend prévu en Python / Flask (autre membre de l'équipe)
 
@@ -29,6 +31,7 @@ terrain et suivi des cultures.
 .
 ├── index.html
 ├── parcelles.html
+├── cultures.html
 ├── observations.html
 ├── alertes.html
 ├── css/
@@ -45,6 +48,15 @@ python3 -m http.server 8000
 ```
 
 Puis ouvrir <http://localhost:8000>.
+
+## Fonctionnalités
+
+- Tableau de bord avec 4 KPIs (parcelles, cultures, observations, alertes)
+- Liste des dernières observations sur la page d'accueil
+- Filtres dynamiques sur observations (état, parcelle), alertes (type, niveau), cultures (type)
+- Codes couleurs cohérents pour les états et niveaux
+- Échappement HTML systématique pour éviter les failles XSS
+- Responsive mobile / tablette / desktop via Bootstrap
 
 ## Auteurs
 

@@ -4,7 +4,6 @@
 
 // ===== Helpers ==============================================================
 
-// Échappement HTML pour éviter les failles XSS lors de l'insertion en DOM
 function escapeHtml(value) {
     if (value === null || value === undefined) return '';
     return String(value)
@@ -15,69 +14,67 @@ function escapeHtml(value) {
         .replace(/'/g, '&#39;');
 }
 
-// Format JJ/MM/AAAA
 function formatDate(iso) {
     if (!iso) return '—';
     const parts = iso.split('-');
     return `${parts[2]}/${parts[1]}/${parts[0]}`;
 }
 
-// Format JJ/MM (court, pour les axes de graphiques)
 function formatDateShort(iso) {
     if (!iso) return '';
     const parts = iso.split('-');
     return `${parts[2]}/${parts[1]}`;
 }
 
-// Renvoie le HTML d'un badge d'état
-function badgeEtat(etat) {
+function tagEtat(etat) {
     const map = {
-        'OK': 'badge-ok',
-        'Stress hydrique': 'badge-stress',
-        'Risque maladie': 'badge-risque',
-        'Maladie détectée': 'badge-maladie'
+        'OK': 'tag-ok',
+        'Stress hydrique': 'tag-stress',
+        'Risque maladie': 'tag-risque',
+        'Maladie détectée': 'tag-maladie'
     };
-    const cls = map[etat] || 'badge-ok';
-    return `<span class="badge-state ${cls}">${escapeHtml(etat)}</span>`;
+    const cls = map[etat] || 'tag-ok';
+    return `<span class="tag ${cls}">${escapeHtml(etat)}</span>`;
 }
 
-// Renvoie le HTML d'un badge de niveau d'alerte
-function badgeNiveau(niveau) {
+function tagNiveau(niveau) {
     const n = Number(niveau);
-    const cls = n === 2 ? 'niveau-2' : 'niveau-1';
-    return `<span class="badge-state ${cls}">Niveau ${n}</span>`;
+    const cls = n === 2 ? 'tag-niveau-2' : 'tag-niveau-1';
+    return `<span class="tag ${cls}">Niveau ${n}</span>`;
 }
 
-// Lien cliquable vers la fiche détaillée d'une parcelle
 function lienParcelle(id) {
-    const nom = getParcelleNom(id);
-    return `<a class="agri-link" href="parcelle-detail.html?id=${encodeURIComponent(id)}">${escapeHtml(nom)}</a>`;
+    return `<a class="lk" href="parcelle-detail.html?id=${encodeURIComponent(id)}">${escapeHtml(getParcelleNom(id))}</a>`;
 }
 
-// Récupère un paramètre dans l'URL
 function getQueryParam(name) {
-    const params = new URLSearchParams(window.location.search);
-    return params.get(name);
+    return new URLSearchParams(window.location.search).get(name);
 }
 
 // ===== Initialisation =======================================================
 
 document.addEventListener('DOMContentLoaded', async function () {
 
-    // Met en évidence le lien actif dans la navbar
+    // Lien actif dans la sidebar
     const currentPage = window.location.pathname.split('/').pop() || 'index.html';
-    document.querySelectorAll('nav a').forEach(function (link) {
+    document.querySelectorAll('.sidebar nav a').forEach(function (link) {
         if (link.getAttribute('href') === currentPage) {
             link.classList.add('active');
         }
     });
 
-    // Charge les données depuis l'API REST (ou utilise le mock selon api.js)
+    // Cas spécial : sur parcelle-detail, on garde "Parcelles" actif
+    if (currentPage === 'parcelle-detail.html') {
+        const parcellesLink = document.querySelector('.sidebar nav a[href="parcelles.html"]');
+        if (parcellesLink) parcellesLink.classList.add('active');
+    }
+
+    // Chargement des données (API ou mock)
     if (typeof loadData === 'function') {
         await loadData();
     }
 
-    // Délègue à la fonction qui correspond à la page courante
+    // Délégation par page
     if (document.getElementById('stats'))             renderDashboard();
     if (document.getElementById('parcelles-body'))    renderParcelles();
     if (document.getElementById('cultures-body'))     renderCultures();
@@ -86,31 +83,30 @@ document.addEventListener('DOMContentLoaded', async function () {
     if (document.getElementById('parcelle-detail'))   renderParcelleDetail();
 });
 
-// ===== Rendu : Tableau de bord =============================================
+// ===== Tableau de bord ======================================================
 
 function renderDashboard() {
     const stats = document.getElementById('stats');
     stats.innerHTML = `
-        <div class="col-6 col-md-3"><div class="stat-card"><div class="label">Parcelles</div><div class="value">${parcelles.length}</div><div class="hint">Total enregistrées</div></div></div>
-        <div class="col-6 col-md-3"><div class="stat-card"><div class="label">Cultures</div><div class="value">${cultures.length}</div><div class="hint">En cours</div></div></div>
-        <div class="col-6 col-md-3"><div class="stat-card warning"><div class="label">Observations</div><div class="value">${observations.length}</div><div class="hint">Relevés terrain</div></div></div>
-        <div class="col-6 col-md-3"><div class="stat-card danger"><div class="label">Alertes</div><div class="value">${alertes.length}</div><div class="hint">À traiter</div></div></div>
+        <div class="kpi"><div class="label">Parcelles</div><div class="value">${parcelles.length}</div><div class="hint">Total enregistrées</div></div>
+        <div class="kpi"><div class="label">Cultures</div><div class="value">${cultures.length}</div><div class="hint">En cours</div></div>
+        <div class="kpi warn"><div class="label">Observations</div><div class="value">${observations.length}</div><div class="hint">Relevés terrain</div></div>
+        <div class="kpi alert"><div class="label">Alertes</div><div class="value">${alertes.length}</div><div class="hint">À traiter</div></div>
     `;
 
     // Météo du jour
     const today = meteo[meteo.length - 1];
     const wNow = document.getElementById('weather-now');
-    const wLabel = document.getElementById('weather-now-label');
     if (today && wNow) {
         wNow.innerHTML = `
-            <span class="temp">${today.temperature.toFixed(1)} °C</span>
-            <span class="meta">Humidité ${today.humidite} %</span>
-            <span class="meta">Pluie ${today.pluie_mm.toFixed(1)} mm</span>
+            <span class="temp">${today.temperature.toFixed(1)}<small>°C</small></span>
+            <span class="meta"><b>${today.humidite}%</b>humidité</span>
+            <span class="meta"><b>${today.pluie_mm.toFixed(1)} mm</b>pluie</span>
+            <span class="label-date">${formatDate(today.date)}</span>
         `;
-        if (wLabel) wLabel.textContent = formatDate(today.date);
     }
 
-    // Graphique météo 7 derniers jours
+    // Graphique 7 derniers jours
     const canvas = document.getElementById('chart-weather');
     if (canvas && typeof Chart !== 'undefined') {
         const last7 = meteo.slice(-7);
@@ -118,15 +114,16 @@ function renderDashboard() {
             data: {
                 labels: last7.map(r => formatDateShort(r.date)),
                 datasets: [
-                    { type: 'bar',  label: 'Pluie (mm)',       data: last7.map(r => r.pluie_mm),    backgroundColor: 'rgba(45,90,61,0.25)', borderColor: 'rgba(45,90,61,0.6)', yAxisID: 'y1', order: 3 },
-                    { type: 'line', label: 'Température (°C)', data: last7.map(r => r.temperature), borderColor: '#c9a227', backgroundColor: 'rgba(201,162,39,0.15)', tension: 0.3, yAxisID: 'y',  order: 1 },
-                    { type: 'line', label: 'Humidité (%)',    data: last7.map(r => r.humidite),    borderColor: '#2d5a3d', backgroundColor: 'rgba(45,90,61,0.15)',  tension: 0.3, yAxisID: 'y',  order: 2 }
+                    { type: 'bar',  label: 'Pluie (mm)',       data: last7.map(r => r.pluie_mm),    backgroundColor: 'rgba(26,31,46,0.12)', borderColor: 'rgba(26,31,46,0.4)', yAxisID: 'y1', order: 3 },
+                    { type: 'line', label: 'Température (°C)', data: last7.map(r => r.temperature), borderColor: '#b85c2c', backgroundColor: 'rgba(184,92,44,0.12)', tension: 0.3, yAxisID: 'y',  order: 1, borderWidth: 2 },
+                    { type: 'line', label: 'Humidité (%)',     data: last7.map(r => r.humidite),    borderColor: '#1a1f2e', backgroundColor: 'rgba(26,31,46,0.06)',  tension: 0.3, yAxisID: 'y',  order: 2, borderWidth: 2, borderDash: [4, 4] }
                 ]
             },
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
                 interaction: { intersect: false, mode: 'index' },
+                plugins: { legend: { labels: { font: { family: 'system-ui', size: 11 } } } },
                 scales: {
                     y:  { position: 'left',  title: { display: true, text: '°C / %' } },
                     y1: { position: 'right', beginAtZero: true, grid: { drawOnChartArea: false }, title: { display: true, text: 'mm' } }
@@ -135,7 +132,7 @@ function renderDashboard() {
         });
     }
 
-    // Dernières observations (si présentes sur la page)
+    // 5 dernières observations
     const lastObs = document.getElementById('last-observations');
     if (lastObs) {
         const recent = observations.slice(0, 5);
@@ -143,7 +140,7 @@ function renderDashboard() {
             <tr>
                 <td>${formatDate(o.date)}</td>
                 <td>${lienParcelle(o.parcelle_id)}</td>
-                <td>${badgeEtat(o.etat)}</td>
+                <td>${tagEtat(o.etat)}</td>
             </tr>
         `).join('');
     }
@@ -153,23 +150,24 @@ function renderDashboard() {
     if (recentAl) {
         const recent = alertes.slice().sort((a, b) => b.date.localeCompare(a.date)).slice(0, 5);
         if (recent.length === 0) {
-            recentAl.innerHTML = `<div class="empty-state">Aucune alerte récente.</div>`;
+            recentAl.innerHTML = `<div class="empty">Aucune alerte récente.</div>`;
         } else {
-            recentAl.innerHTML = `<div class="list-group list-group-flush">${recent.map(a => `
-                <a href="parcelle-detail.html?id=${encodeURIComponent(a.parcelle_id)}"
-                   class="list-group-item list-group-item-action d-flex justify-content-between align-items-start">
-                    <div>
-                        <div class="fw-semibold">${escapeHtml(a.type)}</div>
-                        <div class="text-muted small">${escapeHtml(getParcelleNom(a.parcelle_id))} — ${formatDate(a.date)}</div>
-                    </div>
-                    ${badgeNiveau(a.niveau)}
-                </a>
-            `).join('')}</div>`;
+            recentAl.innerHTML = `<ul class="alert-list">${recent.map(a => `
+                <li>
+                    <a href="parcelle-detail.html?id=${encodeURIComponent(a.parcelle_id)}">
+                        <div>
+                            <div class="what">${escapeHtml(a.type)}</div>
+                            <div class="where">${escapeHtml(getParcelleNom(a.parcelle_id))} — ${formatDate(a.date)}</div>
+                        </div>
+                        ${tagNiveau(a.niveau)}
+                    </a>
+                </li>
+            `).join('')}</ul>`;
         }
     }
 }
 
-// ===== Rendu : Parcelles ====================================================
+// ===== Parcelles ============================================================
 
 function renderParcelles() {
     const tbody = document.getElementById('parcelles-body');
@@ -178,7 +176,7 @@ function renderParcelles() {
             <td>${lienParcelle(p.id)}</td>
             <td>${escapeHtml(p.localisation)}</td>
             <td>${escapeHtml(p.zone || '—')}</td>
-            <td class="text-end">${p.surface.toFixed(1)} ha</td>
+            <td class="num">${p.surface.toFixed(1)} ha</td>
         </tr>
     `).join('');
 
@@ -202,7 +200,7 @@ function renderParcelles() {
     }
 }
 
-// ===== Rendu : Cultures =====================================================
+// ===== Cultures =============================================================
 
 function renderCultures() {
     const tbody = document.getElementById('cultures-body');
@@ -224,7 +222,7 @@ function renderCultures() {
         if (t) rows = rows.filter(c => c.type === t);
 
         if (rows.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="3" class="empty-state">Aucune culture pour ce filtre.</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="3" class="empty">Aucune culture pour ce filtre.</td></tr>`;
             return;
         }
         tbody.innerHTML = rows.map(c => `
@@ -240,7 +238,7 @@ function renderCultures() {
     apply();
 }
 
-// ===== Rendu : Observations =================================================
+// ===== Observations =========================================================
 
 function renderObservations() {
     const tbody = document.getElementById('observations-body');
@@ -265,14 +263,14 @@ function renderObservations() {
         rows.sort((a, b) => b.date.localeCompare(a.date));
 
         if (rows.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="4" class="empty-state">Aucune observation pour ces filtres.</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="4" class="empty">Aucune observation pour ces filtres.</td></tr>`;
             return;
         }
         tbody.innerHTML = rows.map(o => `
             <tr>
                 <td>${formatDate(o.date)}</td>
                 <td>${lienParcelle(o.parcelle_id)}</td>
-                <td>${badgeEtat(o.etat)}</td>
+                <td>${tagEtat(o.etat)}</td>
                 <td>${escapeHtml(o.commentaire || '')}</td>
             </tr>
         `).join('');
@@ -283,7 +281,7 @@ function renderObservations() {
     apply();
 }
 
-// ===== Rendu : Alertes ======================================================
+// ===== Alertes ==============================================================
 
 function renderAlertes() {
     const tbody = document.getElementById('alertes-body');
@@ -298,10 +296,10 @@ function renderAlertes() {
         const stress  = rows.filter(a => a.type === 'Stress hydrique').length;
         const maladie = rows.filter(a => a.type === 'Risque maladie').length;
         kpisZone.innerHTML = `
-            <div class="col-6 col-md-3"><div class="stat-card"><div class="label">Total</div><div class="value">${rows.length}</div><div class="hint">alertes</div></div></div>
-            <div class="col-6 col-md-3"><div class="stat-card warning"><div class="label">Niveau 1</div><div class="value">${n1}</div><div class="hint">vigilance</div></div></div>
-            <div class="col-6 col-md-3"><div class="stat-card danger"><div class="label">Niveau 2</div><div class="value">${n2}</div><div class="hint">critique</div></div></div>
-            <div class="col-6 col-md-3"><div class="stat-card"><div class="label">Répartition</div><div class="value" style="font-size:1rem;line-height:1.4">${stress} stress<br>${maladie} maladie</div><div class="hint">par type</div></div></div>
+            <div class="kpi"><div class="label">Total</div><div class="value">${rows.length}</div><div class="hint">alertes</div></div>
+            <div class="kpi warn"><div class="label">Niveau 1</div><div class="value">${n1}</div><div class="hint">vigilance</div></div>
+            <div class="kpi alert"><div class="label">Niveau 2</div><div class="value">${n2}</div><div class="hint">critique</div></div>
+            <div class="kpi"><div class="label">Stress / Maladie</div><div class="value">${stress} / ${maladie}</div><div class="hint">par type</div></div>
         `;
     }
 
@@ -316,20 +314,17 @@ function renderAlertes() {
         renderKpis(alertes);
 
         if (rows.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="4" class="empty-state">Aucune alerte avec ces filtres.</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="4" class="empty">Aucune alerte avec ces filtres.</td></tr>`;
             return;
         }
-        tbody.innerHTML = rows.map(a => {
-            const rowCls = Number(a.niveau) === 2 ? 'row-risk-2' : 'row-risk-1';
-            return `
-                <tr class="${rowCls}">
-                    <td>${formatDate(a.date)}</td>
-                    <td>${escapeHtml(a.type)}</td>
-                    <td>${lienParcelle(a.parcelle_id)}</td>
-                    <td>${badgeNiveau(a.niveau)}</td>
-                </tr>
-            `;
-        }).join('');
+        tbody.innerHTML = rows.map(a => `
+            <tr>
+                <td>${formatDate(a.date)}</td>
+                <td>${escapeHtml(a.type)}</td>
+                <td>${lienParcelle(a.parcelle_id)}</td>
+                <td>${tagNiveau(a.niveau)}</td>
+            </tr>
+        `).join('');
     }
 
     if (filterType)   filterType.addEventListener('change', apply);
@@ -337,41 +332,39 @@ function renderAlertes() {
     apply();
 }
 
-// ===== Rendu : Détail d'une parcelle ========================================
+// ===== Détail d'une parcelle ================================================
 
 function renderParcelleDetail() {
     const id = Number(getQueryParam('id'));
-    const titleEl = document.getElementById('parcelle-title');
+    const titleEl    = document.getElementById('parcelle-title');
     const subtitleEl = document.getElementById('parcelle-subtitle');
-    const contentEl = document.getElementById('parcelle-detail');
+    const contentEl  = document.getElementById('parcelle-detail');
 
     if (!id) {
-        contentEl.innerHTML = `<div class="empty-state">Paramètre id manquant dans l'URL.</div>`;
+        contentEl.innerHTML = `<div class="empty">Paramètre id manquant dans l'URL.</div>`;
         return;
     }
 
     const parcelle = parcelles.find(p => p.id === id);
     if (!parcelle) {
-        contentEl.innerHTML = `<div class="empty-state">Parcelle introuvable.</div>`;
+        contentEl.innerHTML = `<div class="empty">Parcelle introuvable.</div>`;
         return;
     }
 
-    if (titleEl) titleEl.textContent = parcelle.nom;
-    if (subtitleEl) {
-        subtitleEl.textContent = `${parcelle.localisation} — Zone ${parcelle.zone || '—'} — ${parcelle.surface.toFixed(1)} ha`;
-    }
+    if (titleEl)    titleEl.textContent    = parcelle.nom;
+    if (subtitleEl) subtitleEl.textContent = `${parcelle.localisation} — Zone ${parcelle.zone || '—'} — ${parcelle.surface.toFixed(1)} ha`;
 
     const cult = cultures.filter(c => c.parcelle_id === id);
     const obs  = observations.filter(o => o.parcelle_id === id).sort((a, b) => b.date.localeCompare(a.date));
     const alt  = alertes.filter(a => a.parcelle_id === id).sort((a, b) => b.date.localeCompare(a.date));
 
-    // KPIs
     const kpis = document.getElementById('parcelle-kpis');
     if (kpis) {
         kpis.innerHTML = `
-            <div class="col-6 col-md-4"><div class="stat-card"><div class="label">Surface</div><div class="value">${parcelle.surface.toFixed(1)}</div><div class="hint">hectares</div></div></div>
-            <div class="col-6 col-md-4"><div class="stat-card"><div class="label">Cultures</div><div class="value">${cult.length}</div><div class="hint">en cours</div></div></div>
-            <div class="col-12 col-md-4"><div class="stat-card warning"><div class="label">Alertes</div><div class="value">${alt.length}</div><div class="hint">sur la parcelle</div></div></div>
+            <div class="kpi"><div class="label">Surface</div><div class="value">${parcelle.surface.toFixed(1)}</div><div class="hint">hectares</div></div>
+            <div class="kpi"><div class="label">Cultures</div><div class="value">${cult.length}</div><div class="hint">en cours</div></div>
+            <div class="kpi warn"><div class="label">Observations</div><div class="value">${obs.length}</div><div class="hint">relevés</div></div>
+            <div class="kpi alert"><div class="label">Alertes</div><div class="value">${alt.length}</div><div class="hint">sur la parcelle</div></div>
         `;
     }
 
@@ -379,27 +372,27 @@ function renderParcelleDetail() {
     const cultZone = document.getElementById('parcelle-cultures');
     if (cultZone) {
         cultZone.innerHTML = cult.length === 0
-            ? `<div class="empty-state">Aucune culture sur cette parcelle.</div>`
-            : `<div class="table-responsive"><table class="table table-agri mb-0"><thead><tr><th>Type</th><th>Date de semis</th></tr></thead><tbody>${cult.map(c => `<tr><td>${escapeHtml(c.type)}</td><td>${formatDate(c.date_semis)}</td></tr>`).join('')}</tbody></table></div>`;
+            ? `<div class="empty">Aucune culture sur cette parcelle.</div>`
+            : `<table class="t"><thead><tr><th>Type</th><th>Date de semis</th></tr></thead><tbody>${cult.map(c => `<tr><td>${escapeHtml(c.type)}</td><td>${formatDate(c.date_semis)}</td></tr>`).join('')}</tbody></table>`;
     }
 
     // Observations
     const obsZone = document.getElementById('parcelle-observations');
     if (obsZone) {
         obsZone.innerHTML = obs.length === 0
-            ? `<div class="empty-state">Aucune observation pour cette parcelle.</div>`
-            : `<div class="table-responsive"><table class="table table-agri mb-0"><thead><tr><th>Date</th><th>État</th><th>Commentaire</th></tr></thead><tbody>${obs.slice(0, 10).map(o => `<tr><td>${formatDate(o.date)}</td><td>${badgeEtat(o.etat)}</td><td>${escapeHtml(o.commentaire || '')}</td></tr>`).join('')}</tbody></table></div>`;
+            ? `<div class="empty">Aucune observation pour cette parcelle.</div>`
+            : `<table class="t"><thead><tr><th>Date</th><th>État</th><th>Commentaire</th></tr></thead><tbody>${obs.slice(0, 10).map(o => `<tr><td>${formatDate(o.date)}</td><td>${tagEtat(o.etat)}</td><td>${escapeHtml(o.commentaire || '')}</td></tr>`).join('')}</tbody></table>`;
     }
 
     // Alertes
     const altZone = document.getElementById('parcelle-alertes');
     if (altZone) {
         altZone.innerHTML = alt.length === 0
-            ? `<div class="empty-state">Aucune alerte sur cette parcelle.</div>`
-            : `<div class="list-group list-group-flush">${alt.map(a => `<div class="list-group-item d-flex justify-content-between align-items-start"><div><div class="fw-semibold">${escapeHtml(a.type)}</div><div class="text-muted small">${formatDate(a.date)}</div></div>${badgeNiveau(a.niveau)}</div>`).join('')}</div>`;
+            ? `<div class="empty">Aucune alerte sur cette parcelle.</div>`
+            : `<ul class="alert-list">${alt.map(a => `<li><a href="#"><div><div class="what">${escapeHtml(a.type)}</div><div class="where">${formatDate(a.date)}</div></div>${tagNiveau(a.niveau)}</a></li>`).join('')}</ul>`;
     }
 
-    // Graphique météo 14 derniers jours
+    // Graphique météo 14 jours
     const canvas = document.getElementById('chart-meteo-detail');
     if (canvas && typeof Chart !== 'undefined') {
         const rows = meteo.slice(-14);
@@ -407,9 +400,9 @@ function renderParcelleDetail() {
             data: {
                 labels: rows.map(r => formatDateShort(r.date)),
                 datasets: [
-                    { type: 'bar',  label: 'Pluie (mm)',       data: rows.map(r => r.pluie_mm),    backgroundColor: 'rgba(45,90,61,0.25)', borderColor: 'rgba(45,90,61,0.6)', yAxisID: 'y1' },
-                    { type: 'line', label: 'Température (°C)', data: rows.map(r => r.temperature), borderColor: '#c9a227', backgroundColor: 'rgba(201,162,39,0.15)', tension: 0.3, yAxisID: 'y' },
-                    { type: 'line', label: 'Humidité (%)',    data: rows.map(r => r.humidite),    borderColor: '#2d5a3d', backgroundColor: 'rgba(45,90,61,0.15)',  tension: 0.3, yAxisID: 'y' }
+                    { type: 'bar',  label: 'Pluie (mm)',       data: rows.map(r => r.pluie_mm),    backgroundColor: 'rgba(26,31,46,0.12)', borderColor: 'rgba(26,31,46,0.4)', yAxisID: 'y1' },
+                    { type: 'line', label: 'Température (°C)', data: rows.map(r => r.temperature), borderColor: '#b85c2c', backgroundColor: 'rgba(184,92,44,0.12)', tension: 0.3, yAxisID: 'y', borderWidth: 2 },
+                    { type: 'line', label: 'Humidité (%)',     data: rows.map(r => r.humidite),    borderColor: '#1a1f2e', backgroundColor: 'rgba(26,31,46,0.06)',  tension: 0.3, yAxisID: 'y', borderWidth: 2, borderDash: [4, 4] }
                 ]
             },
             options: {

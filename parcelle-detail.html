@@ -5,78 +5,76 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="AgriData - fiche détaillée d'une parcelle avec cultures, observations, alertes et météo locale.">
     <title>AgriData - Détail parcelle</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
 
-    <nav class="navbar navbar-expand-lg navbar-agri" aria-label="Navigation principale">
-        <div class="container">
-            <a class="navbar-brand" href="index.html"><span class="brand-mark">●</span> AgriData</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
-                    data-bs-target="#mainNav" aria-controls="mainNav"
-                    aria-expanded="false" aria-label="Ouvrir le menu">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="mainNav">
-                <ul class="navbar-nav ms-auto">
-                    <li class="nav-item"><a class="nav-link" href="index.html">Accueil</a></li>
-                    <li class="nav-item"><a class="nav-link" href="parcelles.html">Parcelles</a></li>
-                    <li class="nav-item"><a class="nav-link" href="cultures.html">Cultures</a></li>
-                    <li class="nav-item"><a class="nav-link" href="observations.html">Observations</a></li>
-                    <li class="nav-item"><a class="nav-link" href="alertes.html">Alertes</a></li>
-                </ul>
-            </div>
-        </div>
-    </nav>
+<div class="layout">
 
-    <main class="container py-4" id="parcelle-detail">
-        <header class="page-header d-flex justify-content-between align-items-start flex-wrap gap-2">
+    <aside class="sidebar">
+        <div class="brand">
+            <span class="brand-name">AgriData</span>
+            <span class="brand-tag">Suivi cultures</span>
+        </div>
+        <nav>
+            <ul>
+                <li><a href="index.html">Tableau de bord</a></li>
+                <li><a href="parcelles.html">Parcelles</a></li>
+                <li><a href="cultures.html">Cultures</a></li>
+                <li><a href="observations.html">Observations</a></li>
+                <li><a href="alertes.html">Alertes</a></li>
+            </ul>
+        </nav>
+        <div class="sidebar-footer">
+            Bachelor 2 — Sup de Vinci<br>
+            Chambre d'Agriculture
+        </div>
+    </aside>
+
+    <main class="content" id="parcelle-detail">
+
+        <header class="page-header">
             <div>
                 <h1 id="parcelle-title">Détail de la parcelle</h1>
                 <p class="subtitle" id="parcelle-subtitle">Chargement…</p>
             </div>
-            <a href="parcelles.html" class="btn btn-outline-secondary">← Retour à la liste</a>
+            <a href="parcelles.html" class="back-link">← Retour à la liste</a>
         </header>
 
-        <section id="parcelle-kpis" class="row g-3 mb-4"></section>
+        <section id="parcelle-kpis" class="kpis"></section>
 
-        <section class="row g-3 mb-4">
-            <div class="col-12 col-lg-7">
-                <div class="card card-agri mb-3">
-                    <div class="card-header">Cultures associées</div>
-                    <div class="card-body p-0" id="parcelle-cultures"></div>
+        <section class="split section">
+            <div class="stack">
+                <div>
+                    <h2 class="section-title">Cultures associées</h2>
+                    <div id="parcelle-cultures"></div>
                 </div>
-                <div class="card card-agri">
-                    <div class="card-header">Observations récentes</div>
-                    <div class="card-body p-0" id="parcelle-observations"></div>
+                <div>
+                    <h2 class="section-title">Observations récentes</h2>
+                    <div id="parcelle-observations"></div>
                 </div>
             </div>
-            <div class="col-12 col-lg-5">
-                <div class="card card-agri mb-3">
-                    <div class="card-header">Alertes sur la parcelle</div>
-                    <div class="card-body p-0" id="parcelle-alertes"></div>
+            <div class="stack">
+                <div>
+                    <h2 class="section-title">Alertes sur la parcelle</h2>
+                    <div id="parcelle-alertes"></div>
                 </div>
-                <div class="card card-agri">
-                    <div class="card-header">Météo (14 derniers jours)</div>
-                    <div class="card-body">
-                        <div style="position:relative;height:240px">
-                            <canvas id="chart-meteo-detail" aria-label="Graphique météo 14 jours"></canvas>
-                        </div>
+                <div>
+                    <h2 class="section-title">Météo (14 derniers jours)</h2>
+                    <div class="chart-wrap">
+                        <canvas id="chart-meteo-detail" aria-label="Graphique météo 14 jours"></canvas>
                     </div>
                 </div>
             </div>
         </section>
+
     </main>
 
-    <footer class="agri-footer">
-        <p class="mb-0">Projet Bachelor 2 - Sup de Vinci - Chambre d'Agriculture</p>
-    </footer>
+</div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
-    <script src="js/data.js"></script>
-    <script src="js/api.js"></script>
-    <script src="js/app.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script src="js/data.js"></script>
+<script src="js/api.js"></script>
+<script src="js/app.js"></script>
 </body>
 </html>

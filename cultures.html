@@ -5,69 +5,67 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="AgriData - liste des cultures associées aux parcelles avec date de semis.">
     <title>AgriData - Cultures</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
 
-    <nav class="navbar navbar-expand-lg navbar-agri" aria-label="Navigation principale">
-        <div class="container">
-            <a class="navbar-brand" href="index.html"><span class="brand-mark">●</span> AgriData</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
-                    data-bs-target="#mainNav" aria-controls="mainNav"
-                    aria-expanded="false" aria-label="Ouvrir le menu">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="mainNav">
-                <ul class="navbar-nav ms-auto">
-                    <li class="nav-item"><a class="nav-link" href="index.html">Accueil</a></li>
-                    <li class="nav-item"><a class="nav-link" href="parcelles.html">Parcelles</a></li>
-                    <li class="nav-item"><a class="nav-link" href="cultures.html">Cultures</a></li>
-                    <li class="nav-item"><a class="nav-link" href="observations.html">Observations</a></li>
-                    <li class="nav-item"><a class="nav-link" href="alertes.html">Alertes</a></li>
-                </ul>
-            </div>
-        </div>
-    </nav>
+<div class="layout">
 
-    <main class="container py-4">
+    <aside class="sidebar">
+        <div class="brand">
+            <span class="brand-name">AgriData</span>
+            <span class="brand-tag">Suivi cultures</span>
+        </div>
+        <nav>
+            <ul>
+                <li><a href="index.html">Tableau de bord</a></li>
+                <li><a href="parcelles.html">Parcelles</a></li>
+                <li><a href="cultures.html">Cultures</a></li>
+                <li><a href="observations.html">Observations</a></li>
+                <li><a href="alertes.html">Alertes</a></li>
+            </ul>
+        </nav>
+        <div class="sidebar-footer">
+            Bachelor 2 — Sup de Vinci<br>
+            Chambre d'Agriculture
+        </div>
+    </aside>
+
+    <main class="content">
+
         <header class="page-header">
-            <h1>Cultures</h1>
-            <p class="subtitle">Cultures en cours sur les parcelles de l'exploitation.</p>
+            <div>
+                <h1>Cultures</h1>
+                <p class="subtitle">Cultures en cours sur les parcelles de l'exploitation.</p>
+            </div>
         </header>
 
-        <section class="row g-2 mb-3" aria-label="Filtres">
-            <div class="col-12 col-md-4">
-                <label class="form-label small text-muted" for="filter-culture-type">Type</label>
-                <select id="filter-culture-type" class="form-select">
+        <section class="filters">
+            <div class="filter-field">
+                <label for="filter-culture-type">Type de culture</label>
+                <select id="filter-culture-type">
                     <option value="">Tous</option>
                 </select>
             </div>
         </section>
 
-        <div class="card card-agri">
-            <div class="table-responsive">
-                <table class="table table-agri mb-0">
-                    <thead>
-                        <tr>
-                            <th>Type</th>
-                            <th>Parcelle</th>
-                            <th>Date de semis</th>
-                        </tr>
-                    </thead>
-                    <tbody id="cultures-body"></tbody>
-                </table>
-            </div>
-        </div>
+        <table class="t">
+            <thead>
+                <tr>
+                    <th>Type</th>
+                    <th>Parcelle</th>
+                    <th>Date de semis</th>
+                </tr>
+            </thead>
+            <tbody id="cultures-body"></tbody>
+        </table>
+
     </main>
 
-    <footer class="agri-footer">
-        <p class="mb-0">Projet Bachelor 2 - Sup de Vinci - Chambre d'Agriculture</p>
-    </footer>
+</div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="js/data.js"></script>
-    <script src="js/api.js"></script>
-    <script src="js/app.js"></script>
+<script src="js/data.js"></script>
+<script src="js/api.js"></script>
+<script src="js/app.js"></script>
 </body>
 </html>

@@ -1,7 +1,9 @@
 'use strict';
 
 const USE_MOCK = false;
-const API_URL  = 'http://127.0.0.1:5000/api';
+const API_URL  = (location.hostname === 'localhost' || location.hostname === '127.0.0.1')
+    ? 'http://127.0.0.1:5000/api'
+    : '/api';
 
 async function http(path) {
     const res = await fetch(API_URL + path);

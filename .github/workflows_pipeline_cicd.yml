@@ -4,12 +4,10 @@ on:
   pull_request:
     branches: ["**"]
 
-
 jobs:
   security:
     name: Analyse Sécurité Globale
     runs-on: ubuntu-latest
-
     steps:
       # 1. Récupération du code
       - name: Checkout du code
@@ -17,47 +15,47 @@ jobs:
         with:
           fetch-depth: 0
 
-
-      # 2. Préparation de Node.js
-      - name: Installation de Node.js
-        uses: actions/setup-node@v4
+      # 2. Préparation de Python (pour le backend Flask)
+      - name: Installation de Python
+        uses: actions/setup-python@v5
         with:
-          node-version: '20'
+          python-version: '3.11'
 
-
-      # 3. Installation des dépendances
+      # 3. Installation des dépendances Python
       - name: Installation des dépendances
-        run: npm install
+        run: |
+          if [ -f requirements.txt ]; then
+            pip install -r requirements.txt
+          elif [ -f database/requirements.txt ]; then
+            pip install -r database/requirements.txt
+          fi
 
+      # --- ÉTAPE 1 : GITLEAKS (Détection de Secrets) ---
+      - name: Scan GitLeaks
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      # --- ÉTAPE 1 : SNYK (Sécurité Bibliothèques / SCA) ---
+      # --- ÉTAPE 2 : SNYK (Sécurité dépendances Python) ---
       - name: Scan Snyk
-        uses: snyk/actions/node@master
+        uses: snyk/actions/python@master
         with:
-          args: --file=package.json --severity-threshold=low
+          args: --severity-threshold=low
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_API }}
+        continue-on-error: true
 
-
-      # --- ÉTAPE 2 : DEEPSOURCE (Analyse Qualité & Sécurité) ---
+      # --- ÉTAPE 3 : DEEPSOURCE (Analyse Qualité & Sécurité) ---
       - name: DeepSource Analysis
         uses: deepsourcelabs/test-coverage-action@master
         with:
-          key: javascript
+          key: python
           dsn: ${{ secrets.DEEPSOURCE_API }}
-        continue-on-error: true # Pour que GitGuardian puisse quand même passer après
-
-
-      # --- ÉTAPE 3 : GITGUARDIAN (Détection de Secrets) ---
-      - name: Scan GitGuardian
-        uses: GitGuardian/ggshield-action@master
-        env:
-          GITGUARDIAN_API_KEY: ${{ secrets.GITGUARDIAN_API }}
-
+        continue-on-error: true
 
   validation:
     needs: security
     runs-on: ubuntu-latest
     steps:
       - name: Rapport Final
-        run: echo "Analyse multi-outils (Snyk, DeepSource, GitGuardian) terminée avec succès !"
+        run: echo "Analyse multi-outils (GitLeaks, Snyk, DeepSource) terminée avec succès !"

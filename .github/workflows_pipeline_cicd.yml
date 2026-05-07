@@ -1,0 +1,61 @@
+name: CI Security Pipeline
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+    branches: ["**"]
+
+jobs:
+  security:
+    name: Analyse Sécurité Globale
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. Récupération du code (indispensable)
+      - name: Checkout du code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Important pour Snyk et les analyses historiques
+
+      # 2. Configuration de Node.js
+      - name: Installation de Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm' # Active le cache pour accélérer les prochaines exécutions
+
+      # 3. Installation des dépendances avec détection automatique
+      - name: Installation des dépendances
+        run: |
+          echo "--- RECHERCHE DU PROJET ---"
+          # On cherche le package.json en ignorant node_modules
+          PACKAGE_PATH=$(find . -name "package.json" -not -path "*/node_modules/*" | head -n 1)
+
+          if [ -z "$PACKAGE_PATH" ]; then
+            echo "ERREUR : Aucun package.json trouvé dans le dépôt."
+            ls -R # Pour debug si ça échoue encore
+            exit 1
+          fi
+
+          # On récupère le dossier contenant le package.json
+          ROOT_DIR=$(dirname "$PACKAGE_PATH")
+          echo "Projet détecté dans : $ROOT_DIR"
+          
+          # Installation
+          cd "$ROOT_DIR"
+          npm install
+
+      # 4. Scan Snyk (Sécurité des dépendances)
+      - name: Scan Snyk
+        uses: snyk/actions/node@master
+        continue-on-error: true # Permet de continuer même si des failles sont trouvées
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_API }}
+
+      # 5. Scan GitGuardian (Détection de secrets/clés API)
+      - name: GitGuardian Scan
+        uses: GitGuardian/ggshield-action@v1.25.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITGUARDIAN_API_KEY: ${{ secrets.GITGUARDIAN_API_KEY }}

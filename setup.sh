@@ -1,43 +1,38 @@
 #!/bin/bash
-# Script d'initialisation pour Linux / macOS
-# (équivalent du setup.ps1 pour Windows)
-
 set -e
 
 cd "$(dirname "$0")"
 
-echo "==> Vérification de Python..."
+echo "==> Python"
 python3 --version
 
 echo ""
-echo "==> Création de l'environnement virtuel (.venv)..."
+echo "==> venv (.venv)"
 if [ ! -d ".venv" ]; then
     python3 -m venv .venv
-    echo "    Environnement virtuel créé."
+    echo "    venv créé"
 else
-    echo "    Environnement virtuel déjà présent."
+    echo "    déjà présent"
 fi
 source .venv/bin/activate
 
 echo ""
-echo "==> Installation des dépendances Python..."
+echo "==> install des dépendances"
 pip install --quiet --upgrade pip
 pip install -r database/requirements.txt
 
 echo ""
-echo "==> Vérification du fichier .env..."
+echo "==> .env"
 if [ ! -f ".env" ]; then
     cp .env.example .env
-    echo "    Fichier .env créé depuis .env.example."
-    echo "    Adapte le mot de passe MySQL si besoin."
+    echo "    .env créé (à adapter si besoin)"
 else
-    echo "    Fichier .env déjà présent."
+    echo "    déjà présent"
 fi
 
 echo ""
-echo "==> Création du schéma et import des CSV..."
+echo "==> import des CSV en base"
 python database/init_db.py
 
 echo ""
-echo "Installation terminée."
-echo "Lance l'API avec : ./run-backend.sh"
+echo "Fini. Lance l'API avec ./run-backend.sh"

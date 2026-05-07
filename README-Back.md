@@ -1,114 +1,103 @@
-# Backend AgriData
+# AgriData - Back
 
-Base de données MySQL + API REST Flask pour le projet AgriData.
+L'API REST en Flask + base MySQL pour le projet AgriData.
 
-## À quoi ça sert
+## Ce que ça fait
 
-Ce backend centralise les données de l'exploitation (parcelles, cultures, observations terrain, alertes, météo) et les expose au frontend via une API REST. Il permet :
+Le back stocke les données dans une base MySQL et les expose en JSON via une
+petite API REST. Le front (HTML/JS) attaque cette API pour afficher les
+parcelles, observations, alertes, etc.
 
-- de stocker les relevés terrain dans une base relationnelle propre
-- d'analyser les données via des requêtes SQL prêtes à l'emploi (corrélations pluie/observations, alertes par zone, etc.)
-- de fournir au frontend (HTML/JS) des données consolidées en JSON, sans qu'il ait à connaître la structure de la base
+Les données partent de fichiers CSV dans `data/` qui sont importés dans la
+base à l'init.
 
-## Contenu du dossier `database/`
+## Installation
 
-| Fichier            | Rôle                                                     |
-|--------------------|----------------------------------------------------------|
-| `schema.sql`       | Crée la base `agriculture` et les 5 tables               |
-| `db.py`            | Helper de connexion MySQL (charge `.env` automatiquement)|
-| `import_csv.py`    | Charge les CSV du dossier `data/` dans la base           |
-| `init_db.py`       | Applique `schema.sql` + lance l'import                   |
-| `queries.sql`      | 12 requêtes d'exploitation                               |
-| `run_queries.py`   | Exécute les requêtes et affiche les résultats            |
-| `api.py`           | API REST Flask                                           |
-| `requirements.txt` | Dépendances Python                                       |
+Sur Linux ou Mac :
 
-## Configuration
+```
+./setup.sh
+```
 
-Les paramètres de connexion sont lus depuis un fichier `.env` à la racine du projet (chargé automatiquement par `python-dotenv`). Un modèle est fourni dans `.env.example` :
+Sur Windows :
+
+```
+.\setup.ps1
+```
+
+Ce script crée un environnement Python (`.venv`), installe les dépendances,
+applique le schéma SQL et importe les CSV dans la base.
+
+Avant ça il faut avoir MySQL ou MariaDB installé et démarré.
+
+## Config
+
+Les paramètres de connexion sont dans un fichier `.env` à la racine. Ce
+fichier n'est pas commité (mot de passe). Un modèle est dans
+`.env.example`, suffit de le copier en `.env` et d'adapter :
 
 ```
 DB_HOST=localhost
 DB_PORT=3306
 DB_USER=root
-DB_PASSWORD=0000
+DB_PASSWORD=...
 DB_NAME=agriculture
-API_HOST=127.0.0.1
-API_PORT=5000
 ```
 
-Le fichier `.env` est ignoré par Git (ne jamais le committer, il contient le mot de passe).
+Le code charge automatiquement ce fichier (via python-dotenv) donc plus
+besoin de faire `export DB_PASSWORD=...` à la main.
 
-## Installation
+## Lancer l'API
 
-### Sur Linux / macOS
+Sur Linux :
 
-```bash
-./setup.sh
 ```
-
-Ce script :
-- crée un environnement virtuel `.venv`
-- installe les dépendances Python
-- crée le `.env` depuis `.env.example` si absent
-- applique le schéma SQL et importe les CSV
-
-### Sur Windows
-
-```powershell
-.\setup.ps1
-```
-
-## Lancement de l'API
-
-### Linux / macOS
-
-```bash
 ./run-backend.sh
 ```
 
-(Le script active automatiquement le venv et lance Flask. Le `.env` est chargé par `db.py`.)
+Ou manuellement :
 
-### Windows ou lancement manuel
-
-```bash
-# Activer le venv
-source .venv/bin/activate    # Linux/macOS
-.venv\Scripts\activate        # Windows
-
-# Lancer l'API
+```
+source .venv/bin/activate
 python database/api.py
 ```
 
-L'API démarre sur <http://127.0.0.1:5000>.
+L'API démarre sur `http://127.0.0.1:5000`.
 
-## Endpoints disponibles
+## Les endpoints
 
-| Méthode | URL                  | Description                                |
-|---------|----------------------|--------------------------------------------|
-| GET     | `/api/health`        | Test de vie                                |
-| GET     | `/api/stats`         | Compteurs (parcelles, observations, alertes)|
-| GET     | `/api/parcelles`     | Liste des parcelles                        |
-| GET     | `/api/cultures`      | Liste des cultures (avec nom de parcelle)  |
-| GET     | `/api/observations`  | Historique des observations                |
-| GET     | `/api/alertes`       | Liste des alertes                          |
-| GET     | `/api/meteo`         | 30 derniers jours de météo                 |
+- `GET /api/health` - test de vie, renvoie `{"status":"ok"}`
+- `GET /api/stats` - compteurs (nb de parcelles, observations, alertes)
+- `GET /api/parcelles` - liste des parcelles
+- `GET /api/cultures` - cultures avec le nom de la parcelle joint
+- `GET /api/observations` - historique des relevés
+- `GET /api/alertes` - alertes par parcelle
+- `GET /api/meteo` - 30 derniers jours de météo
 
-## Test rapide
+Tous renvoient du JSON. Test rapide :
 
-```bash
-curl http://127.0.0.1:5000/api/health
-# {"status":"ok"}
-
+```
 curl http://127.0.0.1:5000/api/parcelles
-# [{"id":1,"nom":"Parcelle 1","localisation":"Zone A","surface":2.45}, ...]
 ```
 
 ## Réinitialiser la base
 
-```bash
+Si jamais on veut repartir de zéro :
+
+```
 source .venv/bin/activate
 python database/init_db.py
 ```
 
-Tronque toutes les tables et réimporte les CSV depuis `data/`.
+Ça vide les tables et réimporte les CSV.
+
+## Les fichiers du dossier `database/`
+
+- `api.py` - les endpoints Flask
+- `db.py` - helper de connexion MySQL (lit le .env)
+- `schema.sql` - structure des 5 tables
+- `init_db.py` - applique le schéma puis importe les CSV
+- `import_csv.py` - charge les CSV dans la base
+- `queries.sql` - quelques requêtes SQL d'analyse
+- `run_queries.py` - exécute les requêtes du fichier
+- `requirements.txt` - dépendances Python

@@ -9,7 +9,6 @@ from db import cursor
 
 QUERIES_FILE = Path(__file__).resolve().parent / "queries.sql"
 
-
 def parse_queries(sql_text: str) -> list[tuple[int, str, str]]:
     queries: list[tuple[int, str, str]] = []
     blocks = re.split(r"(?m)^--\s*(\d+\.\s.+)$", sql_text)
@@ -26,7 +25,6 @@ def parse_queries(sql_text: str) -> list[tuple[int, str, str]]:
                 break
     return queries
 
-
 # Affiche un tableau
 def print_table(headers: list[str], rows: list[tuple]) -> None:
     if not rows:
@@ -39,7 +37,6 @@ def print_table(headers: list[str], rows: list[tuple]) -> None:
     print("  " + sep)
     for r in str_rows:
         print("  " + "  ".join(c.ljust(w) for c, w in zip(r, widths)))
-
 
 def main() -> None:
     selected: set[int] | None = None
@@ -59,7 +56,6 @@ def main() -> None:
             cur.execute(stmt)
             headers = [d[0] for d in cur.description]
             print_table(headers, cur.fetchall())
-
 
 if __name__ == "__main__":
     main()

@@ -6,68 +6,93 @@
     <meta name="description" content="AgriData - liste des parcelles avec carte interactive et localisation Hauts-de-France.">
     <title>AgriData - Parcelles</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
-    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/style.css?v=3">
 </head>
 <body>
 
-<div class="layout">
-
-    <aside class="sidebar">
-        <div class="brand">
-            <span class="brand-name">AgriData</span>
-            <span class="brand-tag">Suivi cultures</span>
-        </div>
+<header class="topbar">
+    <div class="topbar-inner">
+        <a href="index.html" class="brand">
+            <span class="logo">A</span>
+            <span class="name">AgriData</span>
+        </a>
         <nav>
-            <ul>
-                <li><a href="index.html">Tableau de bord</a></li>
-                <li><a href="parcelles.html">Parcelles</a></li>
-                <li><a href="cultures.html">Cultures</a></li>
-                <li><a href="observations.html">Observations</a></li>
-                <li><a href="alertes.html">Alertes</a></li>
-            </ul>
+            <a href="dashboard.html">Tableau de bord</a>
+            <a href="parcelles.html">Parcelles</a>
+            <a href="cultures.html">Cultures</a>
+            <a href="observations.html">Observations</a>
+            <a href="alertes.html">Alertes</a>
         </nav>
-        <div class="sidebar-footer">
-            Bachelor 2 — Sup de Vinci<br>
-            Chambre d'Agriculture
+        <div class="topbar-right">Bachelor 2 - Sup de Vinci</div>
+    </div>
+</header>
+
+<main class="content">
+
+    <div class="page-header">
+        <div>
+            <h1>Parcelles</h1>
+            <p class="subtitle">Liste des parcelles enregistrées et localisation cartographique.</p>
         </div>
-    </aside>
+        <button id="btn-toggle-form" class="btn btn-primary" type="button">+ Ajouter</button>
+    </div>
 
-    <main class="content">
-
-        <header class="page-header">
-            <div>
-                <h1>Parcelles</h1>
-                <p class="subtitle">Liste des parcelles enregistrées et localisation cartographique.</p>
+    <section id="form-zone" class="form-inline" hidden>
+        <h3 id="form-title">Nouvelle parcelle</h3>
+        <form id="parcelle-form">
+            <div class="form-grid">
+                <div class="form-row">
+                    <label>Nom</label>
+                    <input type="text" name="nom" required maxlength="50">
+                </div>
+                <div class="form-row">
+                    <label>Localisation</label>
+                    <input type="text" name="localisation" required maxlength="50" placeholder="ex: Zone A">
+                </div>
+                <div class="form-row">
+                    <label>Surface (ha)</label>
+                    <input type="number" name="surface_ha" step="0.01" min="0.1" required>
+                </div>
             </div>
-        </header>
+            <div id="form-error" class="form-error" hidden></div>
+            <div class="form-actions">
+                <button type="button" id="btn-cancel" class="btn btn-ghost">Annuler</button>
+                <button type="submit" class="btn btn-primary">Enregistrer</button>
+            </div>
+        </form>
+    </section>
 
-        <section class="section">
-            <h2 class="section-title">Carte des parcelles (Hauts-de-France)</h2>
+    <section class="bento">
+        <div class="card span-12">
+            <h2 class="card-title">Carte des parcelles (Hauts-de-France)</h2>
             <div id="parcelles-map" role="region" aria-label="Carte interactive"></div>
-        </section>
+        </div>
+    </section>
 
-        <section class="section">
-            <h2 class="section-title">Liste</h2>
-            <table class="t">
-                <thead>
-                    <tr>
-                        <th>Nom</th>
-                        <th>Localisation</th>
-                        <th>Zone</th>
-                        <th class="num">Surface</th>
-                    </tr>
-                </thead>
-                <tbody id="parcelles-body"></tbody>
-            </table>
-        </section>
+    <div class="t-wrap">
+        <div class="t-wrap-head">Liste des parcelles</div>
+        <table class="t">
+            <thead>
+                <tr>
+                    <th>Nom</th>
+                    <th>Localisation</th>
+                    <th>Zone</th>
+                    <th class="num">Surface</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="parcelles-body"></tbody>
+        </table>
+    </div>
 
-    </main>
+</main>
 
-</div>
+<footer class="foot">AgriData - Bachelor 2 Sup de Vinci - Chambre d'Agriculture</footer>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-<script src="js/data.js"></script>
-<script src="js/api.js"></script>
-<script src="js/app.js"></script>
+<script src="js/data.js?v=3"></script>
+<script src="js/api.js?v=3"></script>
+<script src="js/app.js?v=3"></script>
+<script src="js/auth.js?v=3"></script>
 </body>
 </html>

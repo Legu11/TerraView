@@ -3,82 +3,234 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="AgriData - tableau de bord de suivi des cultures pour la Chambre d'Agriculture.">
+    <meta name="description" content="AgriData - plateforme de suivi agricole pour la Chambre d'Agriculture.">
     <title>AgriData - Accueil</title>
-    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/style.css?v=4">
 </head>
 <body>
 
-<div class="layout">
-
-    <aside class="sidebar">
-        <div class="brand">
-            <span class="brand-name">AgriData</span>
-            <span class="brand-tag">Suivi cultures</span>
+<header class="topbar">
+    <div class="topbar-inner">
+        <a href="index.html" class="brand">
+            <span class="logo">A</span>
+            <span class="name">AgriData</span>
+        </a>
+        <nav></nav>
+        <div class="topbar-right">
+            <a href="login.html" class="auth-link">Connexion</a>
+            <a href="signup.html" class="auth-link primary">Inscription</a>
         </div>
-        <nav>
-            <ul>
-                <li><a href="index.html">Tableau de bord</a></li>
-                <li><a href="parcelles.html">Parcelles</a></li>
-                <li><a href="cultures.html">Cultures</a></li>
-                <li><a href="observations.html">Observations</a></li>
-                <li><a href="alertes.html">Alertes</a></li>
-            </ul>
-        </nav>
-        <div class="sidebar-footer">
-            Bachelor 2 — Sup de Vinci<br>
-            Chambre d'Agriculture
-        </div>
-    </aside>
+    </div>
+</header>
 
-    <main class="content">
+<main>
 
-        <header class="page-header">
-            <div>
-                <h1>Tableau de bord</h1>
-                <p class="subtitle">Vue synthétique de l'exploitation : indicateurs, météo et alertes récentes.</p>
-            </div>
-        </header>
-
-        <section id="stats" class="kpis"></section>
-
-        <section class="split section">
-            <div>
-                <h2 class="section-title">Météo</h2>
-                <div class="weather-block">
-                    <div id="weather-now" class="weather-now"></div>
-                </div>
-                <div class="chart-wrap">
-                    <canvas id="chart-weather" aria-label="Graphique météo 7 jours"></canvas>
+    <section class="hero">
+        <div class="hero-inner hero-split">
+            <div class="hero-text">
+                <span class="hero-badge">Projet Bachelor 2 - Sup de Vinci</span>
+                <h1>Suivez vos cultures, sans prise de tête.</h1>
+                <p>AgriData centralise vos parcelles, vos observations terrain, vos alertes
+                   et vos relevés météo dans une seule interface claire. Pour la Chambre
+                   d'Agriculture et ses adhérents.</p>
+                <div class="hero-cta">
+                    <a href="signup.html" class="btn btn-primary">Créer un compte</a>
+                    <a href="login.html" class="btn btn-ghost">J'ai déjà un compte</a>
                 </div>
             </div>
-            <div>
-                <h2 class="section-title">Alertes récentes</h2>
-                <div id="recent-alertes"></div>
+            <div class="hero-visual" aria-hidden="true">
+                <div class="mini-card mc-1">
+                    <div class="mc-label">Parcelles</div>
+                    <div class="mc-value">10</div>
+                </div>
+                <div class="mini-card mc-2">
+                    <div class="mc-label">Alertes</div>
+                    <div class="mc-value mc-alert">50</div>
+                </div>
+                <div class="mini-card mc-3">
+                    <div class="mc-label">Météo</div>
+                    <div class="mc-value mc-temp">23.0°</div>
+                </div>
+                <div class="mini-card mc-4">
+                    <div class="mc-label">Observations</div>
+                    <div class="mc-value">100</div>
+                </div>
             </div>
-        </section>
+        </div>
+    </section>
 
-        <section class="section">
-            <h2 class="section-title">Dernières observations</h2>
-            <table class="t">
-                <thead>
-                    <tr>
-                        <th>Date</th>
-                        <th>Parcelle</th>
-                        <th>État</th>
-                    </tr>
-                </thead>
-                <tbody id="last-observations"></tbody>
-            </table>
-        </section>
+    <section class="stats">
+        <div class="stats-inner">
+            <div class="stat">
+                <div class="stat-value">10</div>
+                <div class="stat-label">Parcelles suivies</div>
+            </div>
+            <div class="stat">
+                <div class="stat-value">100</div>
+                <div class="stat-label">Observations terrain</div>
+            </div>
+            <div class="stat">
+                <div class="stat-value">50</div>
+                <div class="stat-label">Alertes générées</div>
+            </div>
+            <div class="stat">
+                <div class="stat-value">60j</div>
+                <div class="stat-label">Historique météo</div>
+            </div>
+        </div>
+    </section>
 
-    </main>
+    <section class="how">
+        <div class="how-inner">
+            <div class="section-head">
+                <span class="section-tag">Démarrer</span>
+                <h2>Comment ça marche</h2>
+                <p>Trois étapes pour avoir une vue d'ensemble sur l'exploitation.</p>
+            </div>
+            <div class="steps">
+                <div class="step">
+                    <div class="step-num">1</div>
+                    <h3>Créer un compte</h3>
+                    <p>Inscription en quelques secondes avec votre email. Pas de carte bancaire,
+                       pas de pub.</p>
+                </div>
+                <div class="step">
+                    <div class="step-num">2</div>
+                    <h3>Connecter vos données</h3>
+                    <p>Les parcelles, observations et relevés météo sont déjà importés depuis
+                       les fichiers CSV de la Chambre.</p>
+                </div>
+                <div class="step">
+                    <div class="step-num">3</div>
+                    <h3>Surveiller et décider</h3>
+                    <p>Le tableau de bord regroupe les indicateurs et les alertes pour réagir
+                       au plus vite.</p>
+                </div>
+            </div>
+        </div>
+    </section>
 
-</div>
+    <section class="features">
+        <div class="features-inner">
+            <div class="section-head">
+                <span class="section-tag">Fonctionnalités</span>
+                <h2>Tout ce dont vous avez besoin</h2>
+                <p>Un outil simple, pensé pour le terrain.</p>
+            </div>
+            <div class="features-grid">
+                <div class="feature">
+                    <div class="feature-icon">P</div>
+                    <h3>Parcelles &amp; cultures</h3>
+                    <p>Inventaire des parcelles avec localisation cartographique (Leaflet)
+                       et suivi des cultures en cours.</p>
+                </div>
+                <div class="feature">
+                    <div class="feature-icon">O</div>
+                    <h3>Observations terrain</h3>
+                    <p>Historique des relevés : état des plants, anomalies, commentaires
+                       datés. Filtres par parcelle et par état.</p>
+                </div>
+                <div class="feature">
+                    <div class="feature-icon">!</div>
+                    <h3>Alertes graduées</h3>
+                    <p>Trois niveaux de gravité (vigilance, élevé, critique) pour réagir
+                       au plus vite aux risques.</p>
+                </div>
+                <div class="feature">
+                    <div class="feature-icon">M</div>
+                    <h3>Météo locale</h3>
+                    <p>Graphiques sur 7 ou 14 jours : température, humidité, pluviométrie.
+                       Pour anticiper les conditions.</p>
+                </div>
+                <div class="feature">
+                    <div class="feature-icon">F</div>
+                    <h3>Filtres &amp; recherche</h3>
+                    <p>Trouvez rapidement les observations d'une parcelle ou les alertes
+                       d'un type donné.</p>
+                </div>
+                <div class="feature">
+                    <div class="feature-icon">↗</div>
+                    <h3>Vue détaillée</h3>
+                    <p>Chaque parcelle a sa fiche : cultures associées, observations
+                       récentes, alertes, météo locale.</p>
+                </div>
+            </div>
+        </div>
+    </section>
 
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
-<script src="js/data.js"></script>
-<script src="js/api.js"></script>
-<script src="js/app.js"></script>
+    <section class="audience">
+        <div class="audience-inner">
+            <div class="section-head">
+                <span class="section-tag">Pour qui ?</span>
+                <h2>Conçu avec et pour les acteurs agricoles</h2>
+            </div>
+            <div class="audience-grid">
+                <div class="aud-card">
+                    <h3>Agriculteurs</h3>
+                    <p>Pour suivre leurs propres parcelles, garder un historique de leurs
+                       observations, et recevoir des alertes en cas de risque.</p>
+                </div>
+                <div class="aud-card">
+                    <h3>Techniciens de la Chambre</h3>
+                    <p>Pour avoir une vue d'ensemble sur plusieurs exploitations et
+                       conseiller en s'appuyant sur des données.</p>
+                </div>
+                <div class="aud-card">
+                    <h3>Responsables &amp; analystes</h3>
+                    <p>Pour exploiter les données agrégées et identifier des tendances
+                       sur une zone géographique.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="cta">
+        <div class="cta-inner">
+            <h2>Prêt à commencer ?</h2>
+            <p>Créez votre compte en quelques secondes et découvrez le tableau de bord.</p>
+            <div class="hero-cta">
+                <a href="signup.html" class="btn btn-primary">Créer un compte</a>
+                <a href="login.html" class="btn btn-ghost">Se connecter</a>
+            </div>
+        </div>
+    </section>
+
+</main>
+
+<footer class="landing-footer">
+    <div class="lf-inner">
+        <div class="lf-brand">
+            <span class="logo">A</span>
+            <strong>AgriData</strong>
+        </div>
+        <div class="lf-cols">
+            <div>
+                <div class="lf-title">Projet</div>
+                <ul>
+                    <li>Bachelor 2</li>
+                    <li>Sup de Vinci</li>
+                    <li>Année 2025-2026</li>
+                </ul>
+            </div>
+            <div>
+                <div class="lf-title">Commanditaire</div>
+                <ul>
+                    <li>Chambre d'Agriculture</li>
+                </ul>
+            </div>
+            <div>
+                <div class="lf-title">Stack</div>
+                <ul>
+                    <li>HTML / CSS / JS</li>
+                    <li>Flask + MySQL</li>
+                    <li>Chart.js, Leaflet</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div class="lf-bottom">© 2026 AgriData - Projet d'étude</div>
+</footer>
+
+<script src="js/auth.js?v=4"></script>
 </body>
 </html>

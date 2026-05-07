@@ -9,7 +9,6 @@ from import_csv import main as import_main
 
 SCHEMA = Path(__file__).resolve().parent / "schema.sql"
 
-
 def apply_schema() -> None:
     # On se connecte sans choisir de base car schema.sql crée la base lui-même
     cfg = {k: v for k, v in db_config().items() if k != "database"}
@@ -27,7 +26,6 @@ def apply_schema() -> None:
         cur.close()
         conn.close()
     print("Schéma appliqué.")
-
 
 if __name__ == "__main__":
     apply_schema()

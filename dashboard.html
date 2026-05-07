@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="AgriData - fiche détaillée d'une parcelle avec cultures, observations, alertes et météo locale.">
-    <title>AgriData - Détail parcelle</title>
+    <meta name="description" content="AgriData - tableau de bord de suivi des cultures pour la Chambre d'Agriculture.">
+    <title>AgriData - Accueil</title>
     <link rel="stylesheet" href="css/style.css?v=3">
 </head>
 <body>
@@ -26,38 +26,39 @@
     </div>
 </header>
 
-<main class="content" id="parcelle-detail">
+<main class="content">
 
     <div class="page-header">
         <div>
-            <h1 id="parcelle-title">Détail de la parcelle</h1>
-            <p class="subtitle" id="parcelle-subtitle">Chargement…</p>
+            <h1>Tableau de bord</h1>
+            <p class="subtitle">Vue synthétique de l'exploitation : indicateurs, météo et alertes récentes.</p>
         </div>
-        <a href="parcelles.html" class="back-link">← Retour à la liste</a>
     </div>
 
-    <section id="parcelle-kpis" class="bento"></section>
+    <section id="stats" class="bento"></section>
 
-    <section class="bento">
-        <div class="card span-7">
-            <h2 class="card-title">Cultures associées</h2>
-            <div id="parcelle-cultures"></div>
-        </div>
-        <div class="card span-5">
-            <h2 class="card-title">Alertes sur la parcelle</h2>
-            <div id="parcelle-alertes"></div>
-        </div>
+    <section class="dash-split">
+        <div class="dash-main">
+            <div class="card">
+                <h2 class="card-title">Météo des 7 derniers jours</h2>
+                <div id="weather-now" class="weather-now"></div>
+                <div class="chart-wrap">
+                    <canvas id="chart-weather" aria-label="Graphique météo 7 jours"></canvas>
+                </div>
+            </div>
 
-        <div class="card span-7">
-            <h2 class="card-title">Observations récentes</h2>
-            <div id="parcelle-observations"></div>
-        </div>
-        <div class="card span-5">
-            <h2 class="card-title">Météo (14 derniers jours)</h2>
-            <div class="chart-wrap">
-                <canvas id="chart-meteo-detail" aria-label="Graphique météo 14 jours"></canvas>
+            <div class="card">
+                <h2 class="card-title">Dernières observations</h2>
+                <div id="last-observations" class="obs-row"></div>
             </div>
         </div>
+
+        <aside class="dash-side">
+            <div class="card card-tall">
+                <h2 class="card-title">Alertes récentes</h2>
+                <div id="recent-alertes"></div>
+            </div>
+        </aside>
     </section>
 
 </main>

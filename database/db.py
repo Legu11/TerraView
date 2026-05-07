@@ -1,4 +1,3 @@
-# Connexion MySQL
 from __future__ import annotations
 
 import os
@@ -8,8 +7,6 @@ from pathlib import Path
 import mysql.connector
 from mysql.connector import Error
 
-# Charge automatiquement les variables depuis .env (à la racine du projet)
-# si python-dotenv est installé. Sinon, on s'appuie sur les variables système.
 try:
     from dotenv import load_dotenv
     env_path = Path(__file__).resolve().parent.parent / ".env"
@@ -17,7 +14,6 @@ try:
         load_dotenv(env_path)
 except ImportError:
     pass
-
 
 def db_config() -> dict:
     return {
@@ -28,8 +24,6 @@ def db_config() -> dict:
         "database": os.getenv("DB_NAME", "agriculture"),
     }
 
-
-# Curseur prêt à l'emploi : commit auto, rollback en cas d'erreur, fermeture garantie
 @contextmanager
 def cursor(dictionary: bool = False):
     try:

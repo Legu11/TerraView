@@ -1,6 +1,3 @@
-// AgriData - données de démonstration (fallback si l'API n'est pas disponible)
-// Les variables sont en `let` pour que api.js puisse les remplacer en mode réel.
-
 let parcelles = [
     { id: 1,  nom: "Parcelle 1",  localisation: "Zone A", surface: 2.45, zone: "A", coords: [50.6292, 3.0573] },
     { id: 2,  nom: "Parcelle 2",  localisation: "Zone B", surface: 4.49, zone: "B", coords: [50.6916, 3.1745] },
@@ -14,8 +11,6 @@ let parcelles = [
     { id: 10, nom: "Parcelle 10", localisation: "Zone E", surface: 2.37, zone: "E", coords: [50.6589, 3.1900] }
 ];
 
-// Coordonnées GPS approximatives par id de parcelle (région Hauts-de-France).
-// Utilisées en mode API pour la carte Leaflet (pas dispo côté backend).
 const PARCELLE_COORDS = {
     1:  [50.6292, 3.0573],
     2:  [50.6916, 3.1745],
@@ -65,7 +60,6 @@ let alertes = [
     { date: "2026-04-20", type: "Stress hydrique", parcelle_id: 3, niveau: 2 }
 ];
 
-// Météo - 14 derniers jours (pas d'endpoint backend, on garde le mock)
 let meteo = [
     { date: "2026-04-21", temperature: 12.4, humidite: 78, pluie_mm: 3.2 },
     { date: "2026-04-22", temperature: 13.1, humidite: 75, pluie_mm: 0.0 },
@@ -83,7 +77,6 @@ let meteo = [
     { date: "2026-05-04", temperature: 18.9, humidite: 68, pluie_mm: 0.0 }
 ];
 
-// Helper : récupérer le nom d'une parcelle par son id
 function getParcelleNom(id) {
     const p = parcelles.find(x => x.id === id);
     return p ? p.nom : "—";

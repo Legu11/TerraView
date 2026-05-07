@@ -42,7 +42,6 @@ TABLES = [
     },
 ]
 
-
 # Lit le CSV et met le bon type
 def read_rows(csv_path: Path, columns: list[str], casts: list) -> list[tuple]:
     if not csv_path.exists():
@@ -57,7 +56,6 @@ def read_rows(csv_path: Path, columns: list[str], casts: list) -> list[tuple]:
             rows.append(tuple(cast(r[col]) for col, cast in zip(columns, casts)))
     return rows
 
-
 # Met le contenu du CSV
 def import_table(cur, table: dict) -> int:
     rows = read_rows(DATA_DIR / table["csv"], table["columns"], table["casts"])
@@ -68,7 +66,6 @@ def import_table(cur, table: dict) -> int:
     sql = f"INSERT INTO `{table['name']}` ({cols}) VALUES ({placeholders})"
     cur.executemany(sql, rows)
     return len(rows)
-
 
 def main() -> None:
     with cursor() as (_, cur):
@@ -82,7 +79,6 @@ def main() -> None:
             n = import_table(cur, table)
             print(f"  {table['name']:<14} {n:>4} lignes importées")
     print("Import terminé.")
-
 
 if __name__ == "__main__":
     main()

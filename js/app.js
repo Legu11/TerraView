@@ -1,8 +1,4 @@
-// AgriData - script principal
-
 'use strict';
-
-// ===== Helpers ==============================================================
 
 function escapeHtml(value) {
     if (value === null || value === undefined) return '';
@@ -39,7 +35,10 @@ function tagEtat(etat) {
 
 function tagNiveau(niveau) {
     const n = Number(niveau);
-    const cls = n === 2 ? 'tag-niveau-2' : 'tag-niveau-1';
+
+    let cls = 'tag-niveau-1';
+    if (n === 2) cls = 'tag-niveau-2';
+    if (n >= 3) cls = 'tag-niveau-3';
     return `<span class="tag ${cls}">Niveau ${n}</span>`;
 }
 
@@ -51,30 +50,24 @@ function getQueryParam(name) {
     return new URLSearchParams(window.location.search).get(name);
 }
 
-// ===== Initialisation =======================================================
-
 document.addEventListener('DOMContentLoaded', async function () {
 
-    // Lien actif dans la sidebar
     const currentPage = window.location.pathname.split('/').pop() || 'index.html';
-    document.querySelectorAll('.sidebar nav a').forEach(function (link) {
+    document.querySelectorAll('.topbar nav a').forEach(function (link) {
         if (link.getAttribute('href') === currentPage) {
             link.classList.add('active');
         }
     });
 
-    // Cas spécial : sur parcelle-detail, on garde "Parcelles" actif
     if (currentPage === 'parcelle-detail.html') {
-        const parcellesLink = document.querySelector('.sidebar nav a[href="parcelles.html"]');
+        const parcellesLink = document.querySelector('.topbar nav a[href="parcelles.html"]');
         if (parcellesLink) parcellesLink.classList.add('active');
     }
 
-    // Chargement des données (API ou mock)
     if (typeof loadData === 'function') {
         await loadData();
     }
 
-    // Délégation par page
     if (document.getElementById('stats'))             renderDashboard();
     if (document.getElementById('parcelles-body'))    renderParcelles();
     if (document.getElementById('cultures-body'))     renderCultures();
@@ -83,18 +76,15 @@ document.addEventListener('DOMContentLoaded', async function () {
     if (document.getElementById('parcelle-detail'))   renderParcelleDetail();
 });
 
-// ===== Tableau de bord ======================================================
-
 function renderDashboard() {
     const stats = document.getElementById('stats');
     stats.innerHTML = `
-        <div class="kpi"><div class="label">Parcelles</div><div class="value">${parcelles.length}</div><div class="hint">Total enregistrées</div></div>
-        <div class="kpi"><div class="label">Cultures</div><div class="value">${cultures.length}</div><div class="hint">En cours</div></div>
-        <div class="kpi warn"><div class="label">Observations</div><div class="value">${observations.length}</div><div class="hint">Relevés terrain</div></div>
-        <div class="kpi alert"><div class="label">Alertes</div><div class="value">${alertes.length}</div><div class="hint">À traiter</div></div>
+        <div class="card span-3"><div class="kpi"><div class="icon">P</div><div class="label">Parcelles</div><div class="value">${parcelles.length}</div><div class="hint">Total enregistrées</div></div></div>
+        <div class="card span-3"><div class="kpi"><div class="icon">C</div><div class="label">Cultures</div><div class="value">${cultures.length}</div><div class="hint">En cours</div></div></div>
+        <div class="card span-3"><div class="kpi warn"><div class="icon">O</div><div class="label">Observations</div><div class="value">${observations.length}</div><div class="hint">Relevés terrain</div></div></div>
+        <div class="card span-3"><div class="kpi alert"><div class="icon">!</div><div class="label">Alertes</div><div class="value">${alertes.length}</div><div class="hint">À traiter</div></div></div>
     `;
 
-    // Météo du jour
     const today = meteo[meteo.length - 1];
     const wNow = document.getElementById('weather-now');
     if (today && wNow) {
@@ -106,7 +96,6 @@ function renderDashboard() {
         `;
     }
 
-    // Graphique 7 derniers jours
     const canvas = document.getElementById('chart-weather');
     if (canvas && typeof Chart !== 'undefined') {
         const last7 = meteo.slice(-7);
@@ -132,23 +121,22 @@ function renderDashboard() {
         });
     }
 
-    // 5 dernières observations
     const lastObs = document.getElementById('last-observations');
     if (lastObs) {
-        const recent = observations.slice(0, 5);
+        const recent = observations.slice(0, 8);
         lastObs.innerHTML = recent.map(o => `
-            <tr>
-                <td>${formatDate(o.date)}</td>
-                <td>${lienParcelle(o.parcelle_id)}</td>
-                <td>${tagEtat(o.etat)}</td>
-            </tr>
+            <a class="obs-card" href="parcelle-detail.html?id=${encodeURIComponent(o.parcelle_id)}">
+                <div class="obs-date">${formatDate(o.date)}</div>
+                <div class="obs-parcelle">${escapeHtml(getParcelleNom(o.parcelle_id))}</div>
+                <div class="obs-tag">${tagEtat(o.etat)}</div>
+                ${o.commentaire ? `<div class="obs-comment">${escapeHtml(o.commentaire)}</div>` : ''}
+            </a>
         `).join('');
     }
 
-    // 5 alertes les plus récentes
     const recentAl = document.getElementById('recent-alertes');
     if (recentAl) {
-        const recent = alertes.slice().sort((a, b) => b.date.localeCompare(a.date)).slice(0, 5);
+        const recent = alertes.slice().sort((a, b) => b.date.localeCompare(a.date)).slice(0, 10);
         if (recent.length === 0) {
             recentAl.innerHTML = `<div class="empty">Aucune alerte récente.</div>`;
         } else {
@@ -167,7 +155,7 @@ function renderDashboard() {
     }
 }
 
-// ===== Parcelles ============================================================
+let _parcellesMap = null;
 
 function renderParcelles() {
     const tbody = document.getElementById('parcelles-body');
@@ -177,20 +165,30 @@ function renderParcelles() {
             <td>${escapeHtml(p.localisation)}</td>
             <td>${escapeHtml(p.zone || '—')}</td>
             <td class="num">${p.surface.toFixed(1)} ha</td>
+            <td class="actions">
+                <button class="btn-mini" data-action="edit" data-id="${p.id}">Modifier</button>
+                <button class="btn-mini btn-mini-danger" data-action="delete" data-id="${p.id}">Suppr.</button>
+            </td>
         </tr>
     `).join('');
 
-    // Carte Leaflet
-    const mapEl = document.getElementById('parcelles-map');
-    if (mapEl && typeof L !== 'undefined') {
-        const map = L.map(mapEl, { scrollWheelZoom: false }).setView([50.65, 3.10], 11);
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '&copy; OpenStreetMap',
-            maxZoom: 18
-        }).addTo(map);
+    if (!_parcellesMap) {
+        const mapEl = document.getElementById('parcelles-map');
+        if (mapEl && typeof L !== 'undefined') {
+            _parcellesMap = L.map(mapEl, { scrollWheelZoom: false }).setView([50.65, 3.10], 11);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; OpenStreetMap',
+                maxZoom: 18
+            }).addTo(_parcellesMap);
+        }
+    } else {
+
+        _parcellesMap.eachLayer(l => { if (l instanceof L.Marker) _parcellesMap.removeLayer(l); });
+    }
+    if (_parcellesMap) {
         parcelles.forEach(p => {
             if (!p.coords) return;
-            const marker = L.marker(p.coords).addTo(map);
+            const marker = L.marker(p.coords).addTo(_parcellesMap);
             marker.bindPopup(
                 `<strong>${escapeHtml(p.nom)}</strong><br>` +
                 `${escapeHtml(p.localisation)} — ${p.surface.toFixed(1)} ha<br>` +
@@ -198,9 +196,113 @@ function renderParcelles() {
             );
         });
     }
+
+    setupParcellesForm();
 }
 
-// ===== Cultures =============================================================
+let _editingParcelleId = null;
+
+function setupParcellesForm() {
+    const btnToggle = document.getElementById('btn-toggle-form');
+    const btnCancel = document.getElementById('btn-cancel');
+    const formZone = document.getElementById('form-zone');
+    const form = document.getElementById('parcelle-form');
+    const errBox = document.getElementById('form-error');
+    const tbody = document.getElementById('parcelles-body');
+
+    if (!form || form.dataset.bound === '1') return;
+    form.dataset.bound = '1';
+
+    function ouvrirForm(parcelle = null) {
+        formZone.hidden = false;
+        errBox.hidden = true;
+        if (parcelle) {
+            _editingParcelleId = parcelle.id;
+            form.nom.value = parcelle.nom;
+            form.localisation.value = parcelle.localisation;
+            form.surface_ha.value = parcelle.surface;
+            document.getElementById('form-title').textContent = 'Modifier ' + parcelle.nom;
+        } else {
+            _editingParcelleId = null;
+            form.reset();
+            document.getElementById('form-title').textContent = 'Nouvelle parcelle';
+        }
+        form.nom.focus();
+    }
+
+    function fermerForm() {
+        formZone.hidden = true;
+        errBox.hidden = true;
+        _editingParcelleId = null;
+        form.reset();
+    }
+
+    btnToggle.addEventListener('click', () => {
+        if (formZone.hidden) ouvrirForm(); else fermerForm();
+    });
+    btnCancel.addEventListener('click', fermerForm);
+
+    tbody.addEventListener('click', async (e) => {
+        const btn = e.target.closest('button[data-action]');
+        if (!btn) return;
+        const pid = Number(btn.dataset.id);
+        const action = btn.dataset.action;
+
+        if (action === 'edit') {
+            const p = parcelles.find(x => x.id === pid);
+            if (p) ouvrirForm(p);
+            window.scrollTo({top: 0, behavior: 'smooth'});
+        } else if (action === 'delete') {
+            const p = parcelles.find(x => x.id === pid);
+            if (!confirm("Supprimer la parcelle « " + (p ? p.nom : pid) + " » ?\nLes cultures, observations et alertes liées seront aussi supprimées.")) return;
+            try {
+                const res = await fetch(API_URL + '/parcelles/' + pid, { method: 'DELETE' });
+                if (!res.ok) throw new Error("Suppression impossible (HTTP " + res.status + ")");
+                await loadData();
+                renderParcelles();
+            } catch (err) {
+                alert(err.message);
+            }
+        }
+    });
+
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        errBox.hidden = true;
+
+        const payload = {
+            nom: form.nom.value.trim(),
+            localisation: form.localisation.value.trim(),
+            surface_ha: parseFloat(form.surface_ha.value)
+        };
+
+        try {
+            let res;
+            if (_editingParcelleId) {
+                res = await fetch(API_URL + '/parcelles/' + _editingParcelleId, {
+                    method: 'PUT',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(payload)
+                });
+            } else {
+                res = await fetch(API_URL + '/parcelles', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(payload)
+                });
+            }
+            const data = await res.json().catch(() => ({}));
+            if (!res.ok) throw new Error(data.error || 'Erreur');
+
+            fermerForm();
+            await loadData();
+            renderParcelles();
+        } catch (err) {
+            errBox.textContent = err.message;
+            errBox.hidden = false;
+        }
+    });
+}
 
 function renderCultures() {
     const tbody = document.getElementById('cultures-body');
@@ -222,7 +324,7 @@ function renderCultures() {
         if (t) rows = rows.filter(c => c.type === t);
 
         if (rows.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="3" class="empty">Aucune culture pour ce filtre.</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="4" class="empty">Aucune culture pour ce filtre.</td></tr>`;
             return;
         }
         tbody.innerHTML = rows.map(c => `
@@ -230,15 +332,91 @@ function renderCultures() {
                 <td>${escapeHtml(c.type)}</td>
                 <td>${lienParcelle(c.parcelle_id)}</td>
                 <td>${formatDate(c.date_semis)}</td>
+                <td class="actions">
+                    <button class="btn-mini btn-mini-danger" data-action="delete" data-id="${c.id}">Suppr.</button>
+                </td>
             </tr>
         `).join('');
     }
 
     if (filterType) filterType.addEventListener('change', apply);
     apply();
+
+    setupCulturesForm(apply);
 }
 
-// ===== Observations =========================================================
+function setupCulturesForm(rerender) {
+    const btnToggle = document.getElementById('btn-toggle-form');
+    const btnCancel = document.getElementById('btn-cancel');
+    const formZone = document.getElementById('form-zone');
+    const form = document.getElementById('culture-form');
+    const errBox = document.getElementById('form-error');
+    const tbody = document.getElementById('cultures-body');
+    const selectParcelle = document.getElementById('culture-parcelle');
+
+    if (!form || form.dataset.bound === '1') return;
+    form.dataset.bound = '1';
+
+    if (selectParcelle) {
+        parcelles.forEach(p => {
+            const o = document.createElement('option');
+            o.value = p.id;
+            o.textContent = p.nom;
+            selectParcelle.appendChild(o);
+        });
+    }
+
+    btnToggle.addEventListener('click', () => {
+        formZone.hidden = !formZone.hidden;
+        if (!formZone.hidden) form.querySelector('input[name="type"]').focus();
+    });
+    btnCancel.addEventListener('click', () => {
+        formZone.hidden = true;
+        errBox.hidden = true;
+        form.reset();
+    });
+
+    tbody.addEventListener('click', async (e) => {
+        const btn = e.target.closest('button[data-action="delete"]');
+        if (!btn) return;
+        const cid = Number(btn.dataset.id);
+        if (!confirm("Supprimer cette culture ?")) return;
+        try {
+            const res = await fetch(API_URL + '/cultures/' + cid, { method: 'DELETE' });
+            if (!res.ok) throw new Error("Suppression impossible");
+            await loadData();
+            rerender();
+        } catch (err) {
+            alert(err.message);
+        }
+    });
+
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        errBox.hidden = true;
+        const payload = {
+            type: form.type.value.trim(),
+            date_semis: form.date_semis.value,
+            parcelle_id: Number(form.parcelle_id.value)
+        };
+        try {
+            const res = await fetch(API_URL + '/cultures', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(payload)
+            });
+            const data = await res.json().catch(() => ({}));
+            if (!res.ok) throw new Error(data.error || 'Erreur');
+            formZone.hidden = true;
+            form.reset();
+            await loadData();
+            rerender();
+        } catch (err) {
+            errBox.textContent = err.message;
+            errBox.hidden = false;
+        }
+    });
+}
 
 function renderObservations() {
     const tbody = document.getElementById('observations-body');
@@ -279,9 +457,69 @@ function renderObservations() {
     if (filterEtat)     filterEtat.addEventListener('change', apply);
     if (filterParcelle) filterParcelle.addEventListener('change', apply);
     apply();
+
+    setupObservationsForm(apply);
 }
 
-// ===== Alertes ==============================================================
+function setupObservationsForm(rerender) {
+    const btnToggle = document.getElementById('btn-toggle-form');
+    const btnCancel = document.getElementById('btn-cancel');
+    const formZone = document.getElementById('form-zone');
+    const form = document.getElementById('obs-form');
+    const errBox = document.getElementById('form-error');
+    const selectParcelle = document.getElementById('obs-parcelle');
+
+    if (!form || form.dataset.bound === '1') return;
+    form.dataset.bound = '1';
+
+    if (selectParcelle) {
+        parcelles.forEach(p => {
+            const o = document.createElement('option');
+            o.value = p.id;
+            o.textContent = p.nom;
+            selectParcelle.appendChild(o);
+        });
+    }
+
+    const today = new Date().toISOString().slice(0, 10);
+    form.date.value = today;
+
+    btnToggle.addEventListener('click', () => {
+        formZone.hidden = !formZone.hidden;
+    });
+    btnCancel.addEventListener('click', () => {
+        formZone.hidden = true;
+        errBox.hidden = true;
+    });
+
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        errBox.hidden = true;
+        const payload = {
+            date: form.date.value,
+            etat: form.etat.value,
+            parcelle_id: Number(form.parcelle_id.value),
+            commentaire: form.commentaire.value.trim()
+        };
+        try {
+            const res = await fetch(API_URL + '/observations', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(payload)
+            });
+            const data = await res.json().catch(() => ({}));
+            if (!res.ok) throw new Error(data.error || 'Erreur');
+            formZone.hidden = true;
+
+            form.commentaire.value = '';
+            await loadData();
+            rerender();
+        } catch (err) {
+            errBox.textContent = err.message;
+            errBox.hidden = false;
+        }
+    });
+}
 
 function renderAlertes() {
     const tbody = document.getElementById('alertes-body');
@@ -293,13 +531,12 @@ function renderAlertes() {
         if (!kpisZone) return;
         const n1 = rows.filter(a => Number(a.niveau) === 1).length;
         const n2 = rows.filter(a => Number(a.niveau) === 2).length;
-        const stress  = rows.filter(a => a.type === 'Stress hydrique').length;
-        const maladie = rows.filter(a => a.type === 'Risque maladie').length;
+        const n3 = rows.filter(a => Number(a.niveau) >= 3).length;
         kpisZone.innerHTML = `
-            <div class="kpi"><div class="label">Total</div><div class="value">${rows.length}</div><div class="hint">alertes</div></div>
-            <div class="kpi warn"><div class="label">Niveau 1</div><div class="value">${n1}</div><div class="hint">vigilance</div></div>
-            <div class="kpi alert"><div class="label">Niveau 2</div><div class="value">${n2}</div><div class="hint">critique</div></div>
-            <div class="kpi"><div class="label">Stress / Maladie</div><div class="value">${stress} / ${maladie}</div><div class="hint">par type</div></div>
+            <div class="card span-3"><div class="kpi"><div class="icon">∑</div><div class="label">Total</div><div class="value">${rows.length}</div><div class="hint">alertes</div></div></div>
+            <div class="card span-3"><div class="kpi"><div class="icon">1</div><div class="label">Niveau 1</div><div class="value">${n1}</div><div class="hint">vigilance</div></div></div>
+            <div class="card span-3"><div class="kpi warn"><div class="icon">2</div><div class="label">Niveau 2</div><div class="value">${n2}</div><div class="hint">élevé</div></div></div>
+            <div class="card span-3"><div class="kpi alert"><div class="icon">3</div><div class="label">Niveau 3</div><div class="value">${n3}</div><div class="hint">critique</div></div></div>
         `;
     }
 
@@ -330,9 +567,46 @@ function renderAlertes() {
     if (filterType)   filterType.addEventListener('change', apply);
     if (filterNiveau) filterNiveau.addEventListener('change', apply);
     apply();
+
+    setupAnalyserBouton(apply);
 }
 
-// ===== Détail d'une parcelle ================================================
+function setupAnalyserBouton(rerender) {
+    const btn = document.getElementById('btn-analyser');
+    const resultBox = document.getElementById('analyse-result');
+    if (!btn || btn.dataset.bound === '1') return;
+    btn.dataset.bound = '1';
+
+    btn.addEventListener('click', async () => {
+        btn.disabled = true;
+        btn.textContent = "Analyse en cours...";
+        try {
+            const res = await fetch(API_URL + '/alertes/analyser', { method: 'POST' });
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.error || 'Erreur');
+
+            const ind = data.indicateurs;
+            resultBox.innerHTML = `
+                <strong>${data.alertes_creees} nouvelle(s) alerte(s) créée(s).</strong>
+                <span class="ar-meta">
+                    Pluie 7j : ${ind.pluie_7j_mm} mm — Temp moy : ${ind.temp_moy_7j}°C —
+                    Humidité moy : ${ind.humidite_moy_7j}% —
+                    Jours pluvieux/14 : ${ind.jours_pluie_signif_14j}
+                </span>
+            `;
+            resultBox.hidden = false;
+
+            await loadData();
+            rerender();
+        } catch (err) {
+            resultBox.innerHTML = `<strong style="color:#b91c1c">Erreur : ${escapeHtml(err.message)}</strong>`;
+            resultBox.hidden = false;
+        } finally {
+            btn.disabled = false;
+            btn.textContent = "⚡ Analyser maintenant";
+        }
+    });
+}
 
 function renderParcelleDetail() {
     const id = Number(getQueryParam('id'));
@@ -361,14 +635,13 @@ function renderParcelleDetail() {
     const kpis = document.getElementById('parcelle-kpis');
     if (kpis) {
         kpis.innerHTML = `
-            <div class="kpi"><div class="label">Surface</div><div class="value">${parcelle.surface.toFixed(1)}</div><div class="hint">hectares</div></div>
-            <div class="kpi"><div class="label">Cultures</div><div class="value">${cult.length}</div><div class="hint">en cours</div></div>
-            <div class="kpi warn"><div class="label">Observations</div><div class="value">${obs.length}</div><div class="hint">relevés</div></div>
-            <div class="kpi alert"><div class="label">Alertes</div><div class="value">${alt.length}</div><div class="hint">sur la parcelle</div></div>
+            <div class="card span-3"><div class="kpi"><div class="icon">ha</div><div class="label">Surface</div><div class="value">${parcelle.surface.toFixed(1)}</div><div class="hint">hectares</div></div></div>
+            <div class="card span-3"><div class="kpi"><div class="icon">C</div><div class="label">Cultures</div><div class="value">${cult.length}</div><div class="hint">en cours</div></div></div>
+            <div class="card span-3"><div class="kpi warn"><div class="icon">O</div><div class="label">Observations</div><div class="value">${obs.length}</div><div class="hint">relevés</div></div></div>
+            <div class="card span-3"><div class="kpi alert"><div class="icon">!</div><div class="label">Alertes</div><div class="value">${alt.length}</div><div class="hint">sur la parcelle</div></div></div>
         `;
     }
 
-    // Cultures
     const cultZone = document.getElementById('parcelle-cultures');
     if (cultZone) {
         cultZone.innerHTML = cult.length === 0
@@ -376,7 +649,6 @@ function renderParcelleDetail() {
             : `<table class="t"><thead><tr><th>Type</th><th>Date de semis</th></tr></thead><tbody>${cult.map(c => `<tr><td>${escapeHtml(c.type)}</td><td>${formatDate(c.date_semis)}</td></tr>`).join('')}</tbody></table>`;
     }
 
-    // Observations
     const obsZone = document.getElementById('parcelle-observations');
     if (obsZone) {
         obsZone.innerHTML = obs.length === 0
@@ -384,7 +656,6 @@ function renderParcelleDetail() {
             : `<table class="t"><thead><tr><th>Date</th><th>État</th><th>Commentaire</th></tr></thead><tbody>${obs.slice(0, 10).map(o => `<tr><td>${formatDate(o.date)}</td><td>${tagEtat(o.etat)}</td><td>${escapeHtml(o.commentaire || '')}</td></tr>`).join('')}</tbody></table>`;
     }
 
-    // Alertes
     const altZone = document.getElementById('parcelle-alertes');
     if (altZone) {
         altZone.innerHTML = alt.length === 0
@@ -392,7 +663,6 @@ function renderParcelleDetail() {
             : `<ul class="alert-list">${alt.map(a => `<li><a href="#"><div><div class="what">${escapeHtml(a.type)}</div><div class="where">${formatDate(a.date)}</div></div>${tagNiveau(a.niveau)}</a></li>`).join('')}</ul>`;
     }
 
-    // Graphique météo 14 jours
     const canvas = document.getElementById('chart-meteo-detail');
     if (canvas && typeof Chart !== 'undefined') {
         const rows = meteo.slice(-14);

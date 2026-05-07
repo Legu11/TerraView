@@ -5,67 +5,94 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="AgriData - liste des cultures associées aux parcelles avec date de semis.">
     <title>AgriData - Cultures</title>
-    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/style.css?v=3">
 </head>
 <body>
 
-<div class="layout">
-
-    <aside class="sidebar">
-        <div class="brand">
-            <span class="brand-name">AgriData</span>
-            <span class="brand-tag">Suivi cultures</span>
-        </div>
+<header class="topbar">
+    <div class="topbar-inner">
+        <a href="index.html" class="brand">
+            <span class="logo">A</span>
+            <span class="name">AgriData</span>
+        </a>
         <nav>
-            <ul>
-                <li><a href="index.html">Tableau de bord</a></li>
-                <li><a href="parcelles.html">Parcelles</a></li>
-                <li><a href="cultures.html">Cultures</a></li>
-                <li><a href="observations.html">Observations</a></li>
-                <li><a href="alertes.html">Alertes</a></li>
-            </ul>
+            <a href="dashboard.html">Tableau de bord</a>
+            <a href="parcelles.html">Parcelles</a>
+            <a href="cultures.html">Cultures</a>
+            <a href="observations.html">Observations</a>
+            <a href="alertes.html">Alertes</a>
         </nav>
-        <div class="sidebar-footer">
-            Bachelor 2 — Sup de Vinci<br>
-            Chambre d'Agriculture
+        <div class="topbar-right">Bachelor 2 - Sup de Vinci</div>
+    </div>
+</header>
+
+<main class="content">
+
+    <div class="page-header">
+        <div>
+            <h1>Cultures</h1>
+            <p class="subtitle">Cultures en cours sur les parcelles de l'exploitation.</p>
         </div>
-    </aside>
+        <button id="btn-toggle-form" class="btn btn-primary" type="button">+ Nouvelle culture</button>
+    </div>
 
-    <main class="content">
-
-        <header class="page-header">
-            <div>
-                <h1>Cultures</h1>
-                <p class="subtitle">Cultures en cours sur les parcelles de l'exploitation.</p>
+    <section id="form-zone" class="form-inline" hidden>
+        <h3>Nouvelle culture</h3>
+        <form id="culture-form">
+            <div class="form-grid">
+                <div class="form-row">
+                    <label>Type</label>
+                    <input type="text" name="type" required maxlength="50" placeholder="ex: Blé, Maïs, Tournesol...">
+                </div>
+                <div class="form-row">
+                    <label>Date de semis</label>
+                    <input type="date" name="date_semis" required>
+                </div>
+                <div class="form-row">
+                    <label>Parcelle</label>
+                    <select name="parcelle_id" id="culture-parcelle" required>
+                        <option value="">— choisir —</option>
+                    </select>
+                </div>
             </div>
-        </header>
-
-        <section class="filters">
-            <div class="filter-field">
-                <label for="filter-culture-type">Type de culture</label>
-                <select id="filter-culture-type">
-                    <option value="">Tous</option>
-                </select>
+            <div id="form-error" class="form-error" hidden></div>
+            <div class="form-actions">
+                <button type="button" id="btn-cancel" class="btn btn-ghost">Annuler</button>
+                <button type="submit" class="btn btn-primary">Enregistrer</button>
             </div>
-        </section>
+        </form>
+    </section>
 
+    <section class="filters">
+        <div class="filter-field">
+            <label for="filter-culture-type">Type</label>
+            <select id="filter-culture-type">
+                <option value="">Tous</option>
+            </select>
+        </div>
+    </section>
+
+    <div class="t-wrap">
         <table class="t">
             <thead>
                 <tr>
                     <th>Type</th>
                     <th>Parcelle</th>
                     <th>Date de semis</th>
+                    <th>Actions</th>
                 </tr>
             </thead>
             <tbody id="cultures-body"></tbody>
         </table>
+    </div>
 
-    </main>
+</main>
 
-</div>
+<footer class="foot">AgriData - Bachelor 2 Sup de Vinci - Chambre d'Agriculture</footer>
 
-<script src="js/data.js"></script>
-<script src="js/api.js"></script>
-<script src="js/app.js"></script>
+<script src="js/data.js?v=3"></script>
+<script src="js/api.js?v=3"></script>
+<script src="js/app.js?v=3"></script>
+<script src="js/auth.js?v=3"></script>
 </body>
 </html>

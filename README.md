@@ -247,11 +247,12 @@ Plusieurs évolutions peuvent être envisagées :
 
 ## Schéma du MCD
 
-![image.png](attachment:7d581633-e58b-4929-b0b4-2d2f3bfc7470:image.png)
+<img width="862" height="599" alt="image" src="https://github.com/user-attachments/assets/b33657e1-a50d-42a9-9083-b867ce52e52a" />
+
 
 ## Schéma du MLD
 
-![image.png](attachment:d8cb5ce8-c59a-430d-82e8-eee8515e7d9f:image.png)
+<img width="896" height="549" alt="image" src="https://github.com/user-attachments/assets/985b9373-acac-4aa6-8d4b-bc0d4d098ac4" />
 
 ---
 

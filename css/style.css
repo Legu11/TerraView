@@ -62,11 +62,12 @@ html, body {
     color: var(--ink);
 }
 
-.brand .logo-img {
+.logo-img {
     width: 36px;
     height: 36px;
     object-fit: contain;
     display: block;
+    flex-shrink: 0;
 }
 
 .brand .name {

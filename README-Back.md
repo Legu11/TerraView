@@ -1,6 +1,6 @@
-# AgriData - Back
+# Terraview - Back
 
-L'API REST en Flask + base MySQL pour le projet AgriData.
+L'API REST en Flask + base MySQL pour le projet Terraview.
 
 ## Ce que ça fait
 

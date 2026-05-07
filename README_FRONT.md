@@ -1,6 +1,6 @@
-# AgriData - Front
+# Terraview - Front
 
-Le front du projet AgriData. Site web fait en HTML / CSS / JS pur, sans
+Le front du projet Terraview. Site web fait en HTML / CSS / JS pur, sans
 framework type React ou Vue (c'était dans le sujet, et au final c'est pas
 plus mal pour un projet de cette taille).
 

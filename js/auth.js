@@ -1,6 +1,6 @@
 'use strict';
 
-const AUTH_KEY = 'agridata_user';
+const AUTH_KEY = 'terraview_user';
 
 const AUTH_API_URL = (typeof API_URL !== 'undefined') ? API_URL : 'http://127.0.0.1:5000/api';
 

@@ -13,7 +13,7 @@ async function http(path) {
 
 async function loadData() {
     if (USE_MOCK) {
-        console.log('AgriData : mode mock');
+        console.log('Terraview : mode mock');
         return;
     }
     try {
@@ -62,7 +62,7 @@ async function loadData() {
             pluie_mm: Number(m.pluie_mm)
         }));
 
-        console.log(`AgriData : données chargées depuis l'API (${parcelles.length} parcelles, ${observations.length} obs, ${alertes.length} alertes, ${cultures.length} cultures, ${meteo.length} jours météo)`);
+        console.log(`Terraview : données chargées depuis l'API (${parcelles.length} parcelles, ${observations.length} obs, ${alertes.length} alertes, ${cultures.length} cultures, ${meteo.length} jours météo)`);
     } catch (err) {
         console.error('Erreur API, on garde les mocks :', err);
         alert('Impossible de joindre le backend (' + API_URL + '). Vérifie que python database/api.py est lancé. Affichage des données de démo.');

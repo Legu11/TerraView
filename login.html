@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Terraview - connexion à votre espace.">
+    <link rel="icon" type="image/png" href="assets/favicon.png">
+    <title>Terraview - Connexion</title>
+    <link rel="stylesheet" href="css/style.css?v=3">
+</head>
+<body>
+
+<header class="topbar">
+    <div class="topbar-inner">
+        <a href="index.html" class="brand">
+            <img src="assets/logo-icon.png" alt="" class="logo-img">
+            <span class="name">Terraview</span>
+        </a>
+        <nav></nav>
+        <div class="topbar-right">
+            <a href="signup.html" class="auth-link">Créer un compte</a>
+        </div>
+    </div>
+</header>
+
+<main class="auth-page">
+    <div class="auth-card">
+        <h1>Connexion</h1>
+        <p class="auth-sub">Accédez à votre espace Terraview.</p>
+
+        <form id="login-form" novalidate>
+            <div class="form-row">
+                <label for="email">Email</label>
+                <input type="email" id="email" name="email" required autocomplete="email">
+            </div>
+            <div class="form-row">
+                <label for="password">Mot de passe</label>
+                <input type="password" id="password" name="password" required autocomplete="current-password">
+            </div>
+
+            <div id="form-error" class="form-error" hidden></div>
+
+            <button type="submit" class="btn btn-primary btn-block">Se connecter</button>
+        </form>
+
+        <p class="auth-footer">
+            Pas encore de compte ? <a href="signup.html">Inscrivez-vous</a>
+        </p>
+    </div>
+</main>
+
+<footer class="foot">Terraview - Bachelor 2 Sup de Vinci</footer>
+
+<script src="js/api.js?v=3"></script>
+<script src="js/auth.js?v=3"></script>
+<script>
+    document.getElementById('login-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const errBox = document.getElementById('form-error');
+        errBox.hidden = true;
+        const email = document.getElementById('email').value.trim();
+        const password = document.getElementById('password').value;
+
+        try {
+            await login(email, password);
+            window.location.href = 'dashboard.html';
+        } catch (err) {
+            errBox.textContent = err.message;
+            errBox.hidden = false;
+        }
+    });
+</script>
+</body>
+</html>

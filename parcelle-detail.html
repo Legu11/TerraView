@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Terraview - fiche détaillée d'une parcelle avec cultures, observations, alertes et météo locale.">
+    <link rel="icon" type="image/png" href="assets/favicon.png">
+    <title>Terraview - Détail parcelle</title>
+    <link rel="stylesheet" href="css/style.css?v=3">
+</head>
+<body>
+
+<header class="topbar">
+    <div class="topbar-inner">
+        <a href="index.html" class="brand">
+            <img src="assets/logo-icon.png" alt="" class="logo-img">
+            <span class="name">Terraview</span>
+        </a>
+        <nav>
+            <a href="dashboard.html">Tableau de bord</a>
+            <a href="parcelles.html">Parcelles</a>
+            <a href="cultures.html">Cultures</a>
+            <a href="observations.html">Observations</a>
+            <a href="alertes.html">Alertes</a>
+        </nav>
+        <div class="topbar-right">Bachelor 2 - Sup de Vinci</div>
+    </div>
+</header>
+
+<main class="content" id="parcelle-detail">
+
+    <div class="page-header">
+        <div>
+            <h1 id="parcelle-title">Détail de la parcelle</h1>
+            <p class="subtitle" id="parcelle-subtitle">Chargement…</p>
+        </div>
+        <a href="parcelles.html" class="back-link">← Retour à la liste</a>
+    </div>
+
+    <section id="parcelle-kpis" class="bento"></section>
+
+    <section class="bento">
+        <div class="card span-7">
+            <h2 class="card-title">Cultures associées</h2>
+            <div id="parcelle-cultures"></div>
+        </div>
+        <div class="card span-5">
+            <h2 class="card-title">Alertes sur la parcelle</h2>
+            <div id="parcelle-alertes"></div>
+        </div>
+
+        <div class="card span-7">
+            <h2 class="card-title">Observations récentes</h2>
+            <div id="parcelle-observations"></div>
+        </div>
+        <div class="card span-5">
+            <h2 class="card-title">Météo (14 derniers jours)</h2>
+            <div class="chart-wrap">
+                <canvas id="chart-meteo-detail" aria-label="Graphique météo 14 jours"></canvas>
+            </div>
+        </div>
+    </section>
+
+</main>
+
+<footer class="foot">Terraview - Bachelor 2 Sup de Vinci - Chambre d'Agriculture</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script src="js/data.js?v=3"></script>
+<script src="js/api.js?v=3"></script>
+<script src="js/app.js?v=3"></script>
+<script src="js/auth.js?v=3"></script>
+</body>
+</html>

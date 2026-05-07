@@ -1,6 +1,21 @@
 # Dépendances
 node_modules/
 
+# Python (cache compilé)
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Environnements virtuels Python
+.venv/
+venv/
+env/
+
+# Variables d'environnement
+.env
+.env.local
+
 # OS
 .DS_Store
 Thumbs.db

@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Terraview - système d'alertes par parcelle avec niveau de gravité et filtres.">
+    <link rel="icon" type="image/png" href="assets/favicon.png">
+    <title>Terraview - Alertes</title>
+    <link rel="stylesheet" href="css/style.css?v=3">
+</head>
+<body>
+
+<header class="topbar">
+    <div class="topbar-inner">
+        <a href="index.html" class="brand">
+            <img src="assets/logo-icon.png" alt="" class="logo-img">
+            <span class="name">Terraview</span>
+        </a>
+        <nav>
+            <a href="dashboard.html">Tableau de bord</a>
+            <a href="parcelles.html">Parcelles</a>
+            <a href="cultures.html">Cultures</a>
+            <a href="observations.html">Observations</a>
+            <a href="alertes.html">Alertes</a>
+        </nav>
+        <div class="topbar-right">Bachelor 2 - Sup de Vinci</div>
+    </div>
+</header>
+
+<main class="content">
+
+    <div class="page-header">
+        <div>
+            <h1>Alertes</h1>
+            <p class="subtitle">Trois niveaux de gravité : 1 vigilance, 2 élevé, 3 critique.</p>
+        </div>
+        <button id="btn-analyser" class="btn btn-primary" type="button">⚡ Analyser maintenant</button>
+    </div>
+
+    <div id="analyse-result" class="analyse-result" hidden></div>
+
+    <section id="alertes-kpis" class="bento"></section>
+
+    <section class="filters">
+        <div class="filter-field">
+            <label for="filter-type">Type</label>
+            <select id="filter-type">
+                <option value="">Tous</option>
+                <option>Stress hydrique</option>
+                <option>Risque maladie</option>
+            </select>
+        </div>
+        <div class="filter-field">
+            <label for="filter-niveau">Niveau</label>
+            <select id="filter-niveau">
+                <option value="">Tous</option>
+                <option value="1">Niveau 1 - vigilance</option>
+                <option value="2">Niveau 2 - élevé</option>
+                <option value="3">Niveau 3 - critique</option>
+            </select>
+        </div>
+    </section>
+
+    <div class="t-wrap">
+        <table class="t">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Type</th>
+                    <th>Parcelle</th>
+                    <th>Niveau</th>
+                </tr>
+            </thead>
+            <tbody id="alertes-body"></tbody>
+        </table>
+    </div>
+
+</main>
+
+<footer class="foot">Terraview - Bachelor 2 Sup de Vinci - Chambre d'Agriculture</footer>
+
+<script src="js/data.js?v=3"></script>
+<script src="js/api.js?v=3"></script>
+<script src="js/app.js?v=3"></script>
+<script src="js/auth.js?v=3"></script>
+</body>
+</html>

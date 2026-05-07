@@ -1,0 +1,43 @@
+services:
+  agridata-db:
+    image: mariadb:11
+    container_name: agridata-db
+    restart: always
+    environment:
+      MARIADB_ROOT_PASSWORD: ${DB_PASSWORD:-changeme}
+      MARIADB_DATABASE: ${DB_NAME:-agriculture}
+    volumes:
+      - agridata_db_data:/var/lib/mysql
+    networks:
+      - n8n-network
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  agridata-api:
+    build: .
+    container_name: agridata-api
+    restart: always
+    environment:
+      DB_HOST: agridata-db
+      DB_PORT: 3306
+      DB_USER: root
+      DB_PASSWORD: ${DB_PASSWORD:-changeme}
+      DB_NAME: ${DB_NAME:-agriculture}
+      API_HOST: 0.0.0.0
+      API_PORT: 5000
+    depends_on:
+      agridata-db:
+        condition: service_healthy
+    networks:
+      - n8n-network
+
+volumes:
+  agridata_db_data:
+
+networks:
+  n8n-network:
+    external: true
+    name: n8n_n8n-network

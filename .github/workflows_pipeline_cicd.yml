@@ -1,10 +1,9 @@
-name: CI Security Pipeline
-
 on:
   push:
     branches: ["**"]
   pull_request:
     branches: ["**"]
+
 
 jobs:
   security:
@@ -12,50 +11,53 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # 1. Récupération du code (indispensable)
+      # 1. Récupération du code
       - name: Checkout du code
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0 # Important pour Snyk et les analyses historiques
+          fetch-depth: 0
 
-      # 2. Configuration de Node.js
+
+      # 2. Préparation de Node.js
       - name: Installation de Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-          cache: 'npm' # Active le cache pour accélérer les prochaines exécutions
 
-      # 3. Installation des dépendances avec détection automatique
+
+      # 3. Installation des dépendances
       - name: Installation des dépendances
-        run: |
-          echo "--- RECHERCHE DU PROJET ---"
-          # On cherche le package.json en ignorant node_modules
-          PACKAGE_PATH=$(find . -name "package.json" -not -path "*/node_modules/*" | head -n 1)
+        run: npm install
 
-          if [ -z "$PACKAGE_PATH" ]; then
-            echo "ERREUR : Aucun package.json trouvé dans le dépôt."
-            ls -R # Pour debug si ça échoue encore
-            exit 1
-          fi
 
-          # On récupère le dossier contenant le package.json
-          ROOT_DIR=$(dirname "$PACKAGE_PATH")
-          echo "Projet détecté dans : $ROOT_DIR"
-          
-          # Installation
-          cd "$ROOT_DIR"
-          npm install
-
-      # 4. Scan Snyk (Sécurité des dépendances)
+      # --- ÉTAPE 1 : SNYK (Sécurité Bibliothèques / SCA) ---
       - name: Scan Snyk
         uses: snyk/actions/node@master
-        continue-on-error: true # Permet de continuer même si des failles sont trouvées
+        with:
+          args: --file=package.json --severity-threshold=low
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_API }}
 
-      # 5. Scan GitGuardian (Détection de secrets/clés API)
-      - name: GitGuardian Scan
-        uses: GitGuardian/ggshield-action@v1.25.0
+
+      # --- ÉTAPE 2 : DEEPSOURCE (Analyse Qualité & Sécurité) ---
+      - name: DeepSource Analysis
+        uses: deepsourcelabs/test-coverage-action@master
+        with:
+          key: javascript
+          dsn: ${{ secrets.DEEPSOURCE_API }}
+        continue-on-error: true # Pour que GitGuardian puisse quand même passer après
+
+
+      # --- ÉTAPE 3 : GITGUARDIAN (Détection de Secrets) ---
+      - name: Scan GitGuardian
+        uses: GitGuardian/ggshield-action@master
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          GITGUARDIAN_API_KEY: ${{ secrets.GITGUARDIAN_API_KEY }}
+          GITGUARDIAN_API_KEY: ${{ secrets.GITGUARDIAN_API }}
+
+
+  validation:
+    needs: security
+    runs-on: ubuntu-latest
+    steps:
+      - name: Rapport Final
+        run: echo "Analyse multi-outils (Snyk, DeepSource, GitGuardian) terminée avec succès !"

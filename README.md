@@ -298,11 +298,11 @@ Une pipeline CI/CD automatise le déploiement : code → build → tests → mis
 
 ## Schéma d’architecture globale
 
-![image.png](attachment:c40b5de1-df83-4ae1-b42d-36932e21548f:image.png)
+<img width="900" height="650" alt="image" src="https://github.com/user-attachments/assets/52a5d332-2e7b-4af2-839c-d55cbdeca433" />
 
 ## Schéma détaillé
 
-![image.png](attachment:a750b883-27b0-4b6f-bbc4-890c61e3d4b7:image.png)
+<img width="995" height="370" alt="image" src="https://github.com/user-attachments/assets/072da689-3bc4-4e85-8126-281c3be1f329" />
 
 ---
 
@@ -310,7 +310,7 @@ Une pipeline CI/CD automatise le déploiement : code → build → tests → mis
 
 Schéma de la pipeline 
 
-![image.png](attachment:3562b866-7af7-4f7e-8d67-0c6a6cae5bca:image.png)
+<img width="260" height="837" alt="image" src="https://github.com/user-attachments/assets/ff00d32b-7526-450b-859d-59663231b9ee" />
 
 Explication de la pipeline :
 

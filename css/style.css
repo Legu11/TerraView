@@ -62,17 +62,11 @@ html, body {
     color: var(--ink);
 }
 
-.brand .logo {
-    width: 28px;
-    height: 28px;
-    background-color: var(--accent);
-    border-radius: 8px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: white;
-    font-weight: 700;
-    font-size: 0.9rem;
+.brand .logo-img {
+    width: 36px;
+    height: 36px;
+    object-fit: contain;
+    display: block;
 }
 
 .brand .name {
@@ -601,6 +595,13 @@ a.lk:hover { color: var(--accent-dark); text-decoration: underline; }
 }
 
 .hero-text { text-align: left; }
+
+.hero-logo {
+    width: 140px;
+    height: auto;
+    margin-bottom: 1.2rem;
+    display: block;
+}
 
 .hero-badge {
     display: inline-block;
